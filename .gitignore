@@ -1,2 +1,2 @@
-*~
-/data/lcmc.db3
+/data/*
+__pycache__/
