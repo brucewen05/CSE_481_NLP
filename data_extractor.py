@@ -40,7 +40,7 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                 chars = pp[0][cursor:input_window_end]
 
                 if (len(chars) > 0):
-                    triples.append((context, pinyins, chars))
+                    triples.append((" ".join(context), " ".join(pinyins), " ".join(chars)))
                     if first_n is not None and len(triples) == first_n:
                         return triples
     return triples
@@ -48,6 +48,6 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
 
 if __name__ == "__main__":
     with open('data/data_lcmc_clean.json', 'w') as outfile:
-        data = json.dumps(extract_triples(build_parallel_paragraphs_lcmc(), first_n=1000), indent=4, sort_keys=True)
+        data = json.dumps(extract_triples(build_parallel_paragraphs_lcmc()), indent=4, sort_keys=True)
         outfile.write(data)
     
