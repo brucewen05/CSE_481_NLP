@@ -5,6 +5,10 @@ http://very-natural.blogspot.com/2017/04/3-formal-proposal.html
 ## Dev Notes
 * Python 3 is used.
 
+## Dependencies
+To install all the dependecies (note, tensorflow is not included)
+run pip3 install -r requirement.txt
+
 ### Data prep
 * **Lancaster Corpus of Mandarin Chinese (LCMC)**, SQlite version:  Download [lcmc.db3](https://www.google.com/url?q=https://drive.google.com/open?id%3D0B6AoAA-0CimLTXMzRzNsdzltWVE&sa=D&ust=1492071674907000&usg=AFQjCNEVmzMXIkyobfENysdBt-02JAiUDw) and put it in the `/data` directory.
 * Run `data_extractor.py` to generate datasets.
