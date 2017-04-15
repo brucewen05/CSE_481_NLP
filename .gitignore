@@ -2,5 +2,4 @@
 /data/*.db3
 __pycache__/
 *~
-model/*
-data/lcmc.db3
+model/*_model
