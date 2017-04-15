@@ -14,7 +14,6 @@ To load an existing model, do `python3 -l model_file`
 
 START = '<S>'
 END = '</S>'
-<<<<<<< HEAD
 
 # This function trains a model based on the
 # training file, and writes the training result:
@@ -66,7 +65,7 @@ def predict(word_prev, pinyin_cur, training_result):
     unigram_dict = training_result[0]
     bigram_dict = training_result[1]
     dictionary = training_result[2]
-    
+
     phrases = dictionary[pinyin_cur]
     suggestion = {}
     for phrase in phrases:
