@@ -7,12 +7,12 @@ from sys import argv, stdin
 
 START = '<S>'
 END = '</S>'
-# filename = argv[1]
+filename = argv[1]
 start_time = time.time()
 
 print("Training on")
-conn = sqlite3.connect('C:\\Users\\zjy\\sqlite\\lcmc.db3')
-# conn = sqlite3.connect(filename)
+# conn = sqlite3.connect('C:\\Users\\zjy\\sqlite\\lcmc.db3')
+conn = sqlite3.connect(filename)
 c = conn.cursor()
 rows = c.execute('SELECT p.characters, s.characters FROM pinyin_full_sentences as p JOIN full_sentences as s '
           'where p.sentence_id = s.sentence_id and p.file_id = s.file_id and p.text_id = s.text_id')
