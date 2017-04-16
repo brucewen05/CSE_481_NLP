@@ -21,7 +21,7 @@ def build_parallel_paragraphs_lcmc():
 
     
 def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, first_n=None, min_paragraph_len=6):
-    # triples[i] = (context[], pinyins[], chars[])
+    # triples[i] = (context, pinyins, chars)
     triples = []
     for pp in paragraph_pairs:
         if len(pp[0]) != len(pp[1]):
