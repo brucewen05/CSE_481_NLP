@@ -7,6 +7,10 @@ valid_prefixes = ["b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j",
         "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"]
 invalid_single_char = ["i", "u", "v"]
 
+def next_syllable(pinyin_input, allow_invalid_single=True):
+    tokens = segment_with_hint(pinyin_input, allow_invalid_single)
+    return tokens[0] if (len(tokens) > 0) else None
+
 # hint - manually added pinyin boundaries. e.g. "xi'an"
 def segment_with_hint(pinyin_input, allow_invalid_single=True):
     ps = pinyin_input.split("'")
@@ -56,3 +60,4 @@ if __name__ == "__main__":
     assert segment_with_hint("'xx'''x''") == ["x", "x", "x"]
     assert segment_with_hint("u") == ["u"]
     assert segment_with_hint("u", allow_invalid_single=False) == []
+    assert next_syllable("nihaoa") == "ni"
