@@ -57,8 +57,11 @@ def train(training_filename, output_filename):
     return training_result
 
 def load_model(model_file):
+    print("Loading model from", model_file, "...")
     with open(model_file, 'rb') as f:
-        return pickle.load(f)
+        model = pickle.load(f)
+        print("Done loading")
+        return model
 
 def predict(word_prev, pinyin_cur, training_result):
     # bad style...
