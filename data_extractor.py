@@ -13,7 +13,9 @@ def build_parallel_paragraphs_lcmc():
     for tup in lcmc.get_pinyin_paragraphs():
         # drop tunes and add paddings
         p = re.sub(r'([a-z]+)[0-9] *', r' \1 ', tup[0])
-        p = re.sub(r'([^a-z ])', r' \1 ', p)             
+        p = re.sub(r'([^a-z ])', r' \1 ', p)
+        # fix "uu"=>"v" in lcmc pinyin
+        p = re.sub(r'uu', r'v', p)        
         pinyin_paragraphs.append(p.split())
 
     assert len(char_paragraphs) == len(pinyin_paragraphs)
@@ -46,7 +48,7 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
     return triples
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     with open('data/data_lcmc_clean.json', 'w') as outfile:
         data = json.dumps(extract_triples(build_parallel_paragraphs_lcmc()), indent=4, sort_keys=True)
         outfile.write(data)
