@@ -68,14 +68,20 @@ def predict(word_prev, pinyin_cur, training_result):
     unigram_dict = training_result[0]
     bigram_dict = training_result[1]
     dictionary = training_result[2]
+    try:
+        phrases = dictionary[pinyin_cur]
+    except KeyError:
+        phrases = sorted(unigram_dict, key=lambda k: unigram_dict[k], reverse=True)[:9]
 
-    phrases = dictionary[pinyin_cur]
     suggestion = {}
     for phrase in phrases:
         try:
-            suggestion[phrase] = bigram_dict[word_prev, phrase] + 1 / float(unigram_dict[word_prev]) + 1
+            suggestion[phrase] = (bigram_dict[word_prev, phrase] + 1) / float(unigram_dict[word_prev] + len(dictionary.keys()))
         except KeyError:
-            pass
+            suggestion[phrase] = 1 / float(len(dictionary.keys()))
+
+    # For testing {prediction hanzi: score}
+    print(suggestion)
     suggestion = sorted(suggestion, key=lambda k: suggestion[k], reverse=True)
     return suggestion
 
