@@ -48,7 +48,7 @@ def train(training_filename, output_filename):
             dictionary[pinyin[:-1]] = set(list(phrase)[index - 1])
     print("Finish training: ", time.time() - start_time)
     conn.close()
-    training_result = [unigram_dict, bigram_dict, dictionary]
+    training_result = (unigram_dict, bigram_dict, dictionary)
 
     print("Writing trained model to ", output_filename)
     with open(output_filename, 'wb') as f:
@@ -63,11 +63,8 @@ def load_model(model_file):
         print("Done loading")
         return model
 
-def predict(word_prev, pinyin_cur, training_result):
-    # bad style...
-    unigram_dict = training_result[0]
-    bigram_dict = training_result[1]
-    dictionary = training_result[2]
+def predict(word_prev, pinyin_cur):
+    unigram_dict, bigram_dict, dictionary = training_result
     try:
         phrases = dictionary[pinyin_cur]
     except KeyError:
@@ -107,7 +104,7 @@ if __name__ == "__main__":
         if  not pinyin_cur:
             break
 
-        suggestion = predict(word_prev, pinyin_cur, training_result)
+        suggestion = predict(word_prev, pinyin_cur)
         print("suggestions:", suggestion)
         print("Enter Selection:")
         selection = stdin.readline()[:-1]
@@ -115,5 +112,5 @@ if __name__ == "__main__":
             break
         word_prev = suggestion[int(selection)]
         print(word_prev)
-
-
+else:
+    training_result = load_model("model/ngrams_model")

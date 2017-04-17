@@ -25,6 +25,12 @@ def get_predictions(selected_chars, typed_chars):
         cur_list = 1
         return dummy_list2
 
+# predictions_list: results from beam search
+def sort_and_merge_predictions(predictions_list, max_items=9):
+    flat_list = [item for sublist in predictions_list for item in sublist]
+    ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
+    return [x[0] for x in ranked]
+
 # helper function to print out the choice nicely
 def print_predictions(predictions):
     for i in range(0, len(predictions)):
@@ -37,7 +43,7 @@ def print_predictions(predictions):
     print()
 
 
-training_result = ng.load_model("model/ngrams_model")
+
 
 selected_chars = ""
 cur_predictions = dummy_list1
@@ -59,11 +65,8 @@ while (True) :
     else:
         # input only contains alphabetic value, assume it is pinyin string
         if (alphabet.match(c)) :
-            tokens = pu.segment_with_hint(c)
-            if selected_chars == "":
-                cur_predictions = bs.beam_search(ng.START, tokens, len(tokens), 9, ng.predict, training_result)
-            else:
-                cur_predictions = bs.beam_search(selected_chars[-1], tokens, len(tokens), 9, ng.predict, training_result)
+            predictions_list = bs.ngram_beam_search(selected_chars, pu.segment_with_hint(c))
+            cur_predictions = sort_and_merge_predictions(predictions_list)
         # input contains none-alphabetic value, assume it is punctuations
         else:
             selected_chars += c
@@ -79,19 +82,19 @@ while (True) :
 
     if (num.match(c)):
         selected_chars += cur_predictions[int(c) - 1]
-        cur_predictions = ng.predict(selected_chars[-1], "", training_result)
+        cur_predictions = ng.predict(selected_chars[-1], "")
     else:
         # input only contains alphabetic value, assume it is pinyin string
         if (alphabet.match(c)) :
             tokens = pu.segment_with_hint(c)
             if selected_chars == "":
-                cur_predictions = ng.predict(ng.START, tokens[0], training_result)
+                cur_predictions = ng.predict(ng.START, tokens[0])
             else:
-                cur_predictions = ng.predict(selected_chars[-1], tokens[0], training_result)
+                cur_predictions = ng.predict(selected_chars[-1], tokens[0])
         # input contains none-alphabetic value, assume it is punctuations
         else:
             selected_chars += c
-            cur_predictions = ng.predict(selected_chars[-1], "", training_result)
+            cur_predictions = ng.predict(selected_chars[-1], "")
 
     print_predictions(cur_predictions)
     print(selected_chars)

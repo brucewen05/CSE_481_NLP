@@ -1,76 +1,54 @@
-
-import ngram as ng
-import heapq as hq
 import math
+import heapq
+import ngram as ng
 
-BEAM_WIDTH = 20
-
-# for bigram, prev_words should either be a single hanzi
-# or ng.START symbol
-"""
-prev_words: string of previous handzi
-tokens: list of segmentated pinyin
-length: the length of output phrase
-k: number of best choices to return
-"""
-def beam_search(prev_words, tokens, length, k, predict_fn, training_result):
-    # make sure the maximum length is no larger than the token length
-    if len(tokens) < length:
-        length = len(tokens)
-
-    prev_level = [(0, None, prev_words)]
-
-    # map used to back-construct the result phrase
-    # it has the format: {"curr_word": list of(prev_word, log_prob)}
-    back_map = {}
-
-    for i in range(0, length):
-        next_level = []
-        # print("tokens:", tokens, "---------------")
-        # print("before prev_level:", prev_level, "----------------")
-        for j in range(0, len(prev_level)):
-            # print("prev word:", prev_level[j][2], "; cur token:" ,tokens[i], "!!!!!!")
-            predictions = predict_fn(prev_level[j][2], tokens[i], training_result)
-            top_k_predictions = hq.nlargest(BEAM_WIDTH, predictions, key=predictions.get)
-            # manually do top k sort to save space
-            # print("top k predictions:", top_k_predictions, "!!!!!!!!!")
-            for p in top_k_predictions:
-                if (len(next_level) < BEAM_WIDTH):
-                                           #(log(prob),                prev_word,        curr_word)
-                    hq.heappush(next_level, (math.log(predictions[p]), prev_level[j][2], p))
-                else:
-                    hq.heappushpop(next_level, (math.log(predictions[p]), prev_level[j][2], p))
-
-        # put words in next level in the back-construction map
-        for log_prob, prev_word, curr_word in next_level:
-            entry = back_map.setdefault(curr_word, [])
-            # print("curr_word:", curr_word)
-            entry.append((prev_word, log_prob)) # in case the same word is mapped more than one time
-            # print(entry, "============")
-        prev_level = next_level
-
-    results = []
-    # constructing the complete phrases backtracking
-    # from the last level of beam search
-    for log_prob, prev_word, curr_word in prev_level:
-        total_sum = 0.0
-        phrase = ""
-        cur = curr_word
-        for i in range(0, length):
-            # print("inside last for loop, cur is:", cur)
-            curr_tuple_list = back_map[cur]
-            curr_tuple = curr_tuple_list[0]
-            if len(curr_tuple_list) > 1:
-                curr_tuple = curr_tuple_list.pop()
-            phrase = cur + phrase
-            total_sum += curr_tuple[1]
-            cur = curr_tuple[0]
-        # print("done with one phrase===============")
-        results.append((total_sum, phrase))
-
-    # sort the result by log probability and return the top k choices
-    results = sorted(results, key = lambda x: x[0], reverse=True)
-    return list(map(lambda x: x[1], results))[: k]
+def ngram_beam_search(prev_context, pinyin_syllables, top_k=10, beam_width=100):
+    def predict_fn_ngram(prev_words, cur_pinyin):
+        if len(prev_words) == 0:
+            last_word = ng.START if prev_context == "" else prev_context[-1]
+        else:
+            last_word = prev_words[-1]
+        return ng.predict(last_word, cur_pinyin)
+    return beam_search(pinyin_syllables, predict_fn_ngram, top_k, beam_width)
 
 
+# returns a list of [k * (predtion, log_prob)] for length 1..n
+# predict_fn: function(prev_words_string, cur_pinyin)
+def beam_search(pinyin_syllables, predict_fn, top_k, beam_width):    
+    assert top_k < beam_width
 
+    def truncate_dict(d, keep_n):
+        temp = d
+        d = {}
+        for key in heapq.nlargest(keep_n, temp, key=temp.get):
+            d[key] = temp[key]
+        return d
+
+    n = len(pinyin_syllables)
+    # one list of dict(chars, log_prob) per length
+    phrase_prob = [{} for i in range(n + 1)]
+    phrase_prob[0][""] = 0.
+
+    results = [[] for i in range(n)]
+    for i in range(1, n + 1):
+        for prev_words, prev_prob in phrase_prob[i - 1].items():
+            predictions = predict_fn(prev_words, pinyin_syllables[i - 1])
+            for word, prob in predictions.items():
+                new_words = prev_words + word
+                if new_words not in phrase_prob[i] or \
+                        phrase_prob[i][new_words] < prev_prob + math.log(prob):
+                    phrase_prob[i][new_words] = prev_prob + math.log(prob)
+
+        phrase_prob[i] = truncate_dict(phrase_prob[i], beam_width)
+        best_predictions = heapq.nlargest(top_k, phrase_prob[i], key=phrase_prob[i].get)
+        results[i - 1] = [(words, phrase_prob[i][words]) for words in best_predictions]
+    
+    return results
+
+
+if __name__ == "__main__":
+    pys = ["wo", "ai", "bei", "jing", "tian", "an", "men"]
+    res = ngram_beam_search("", pys, top_k=5)
+    for i in range(len(res)):
+        for j in range(len(res[i])):
+            print(res[i][j][0] + " " + str(res[i][j][1] / len(res[i][j][0])))
