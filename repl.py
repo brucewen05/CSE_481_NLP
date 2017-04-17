@@ -4,6 +4,7 @@ import re
 
 import ngram as ng
 import pinyin_util as pu
+import beam_search as bs
 
 
 dummy_list1 = [u"\u54C8", u"\u563F", u"\u5475", u"\u597D", 
@@ -45,12 +46,32 @@ print_predictions(cur_predictions)
 
 #regular expression to judge if a string only contains alphabet
 alphabet = re.compile("^[a-z]+$")
+#regular expression to judge if a string only contains numeric value
 num = re.compile("^[0-9]+$")
 
-# TODO: need to consolidate definition of START to only one file
-# currently, it is defined in obth repl.py and ngram.py
-START = '<S>'
+while (True) :
+    c = sys.stdin.readline()[:-1]
+    if not c:
+        break
 
+    if (num.match(c)):
+        selected_chars += cur_predictions[int(c) - 1]
+    else:
+        # input only contains alphabetic value, assume it is pinyin string
+        if (alphabet.match(c)) :
+            tokens = pu.segment_with_hint(c)
+            if selected_chars == "":
+                cur_predictions = bs.beam_search(ng.START, tokens, len(tokens), 9, ng.predict, training_result)
+            else:
+                cur_predictions = bs.beam_search(selected_chars[-1], tokens, len(tokens), 9, ng.predict, training_result)
+        # input contains none-alphabetic value, assume it is punctuations
+        else:
+            selected_chars += c
+    # print(cur_predictions)
+    print_predictions(cur_predictions)
+    print(selected_chars)
+
+"""
 while (True) :
     c = sys.stdin.readline()[:-1]
     if not c:
@@ -63,10 +84,8 @@ while (True) :
         # input only contains alphabetic value, assume it is pinyin string
         if (alphabet.match(c)) :
             tokens = pu.segment_with_hint(c)
-            # only true for bigram model
-            assert len(tokens) == 1
             if selected_chars == "":
-                cur_predictions = ng.predict(START, tokens[0], training_result)
+                cur_predictions = ng.predict(ng.START, tokens[0], training_result)
             else:
                 cur_predictions = ng.predict(selected_chars[-1], tokens[0], training_result)
         # input contains none-alphabetic value, assume it is punctuations
@@ -76,3 +95,4 @@ while (True) :
 
     print_predictions(cur_predictions)
     print(selected_chars)
+"""

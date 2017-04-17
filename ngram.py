@@ -81,8 +81,8 @@ def predict(word_prev, pinyin_cur, training_result):
             suggestion[phrase] = 1 / float(len(dictionary.keys()))
 
     # For testing {prediction hanzi: score}
-    print(suggestion)
-    suggestion = sorted(suggestion, key=lambda k: suggestion[k], reverse=True)
+    # print(suggestion)
+    # suggestion = sorted(suggestion, key=lambda k: suggestion[k], reverse=True)
     return suggestion
 
 
