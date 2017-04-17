@@ -29,7 +29,7 @@ def beam_search(prev_words, tokens, length, k, predict_fn, training_result):
         # print("tokens:", tokens, "---------------")
         # print("before prev_level:", prev_level, "----------------")
         for j in range(0, len(prev_level)):
-            print("prev word:", prev_level[j][2], "; cur token:" ,tokens[i], "!!!!!!")
+            # print("prev word:", prev_level[j][2], "; cur token:" ,tokens[i], "!!!!!!")
             predictions = predict_fn(prev_level[j][2], tokens[i], training_result)
             top_k_predictions = hq.nlargest(BEAM_WIDTH, predictions, key=predictions.get)
             # manually do top k sort to save space
@@ -41,6 +41,7 @@ def beam_search(prev_words, tokens, length, k, predict_fn, training_result):
                 else:
                     hq.heappushpop(next_level, (math.log(predictions[p]), prev_level[j][2], p))
 
+        # put words in next level in the back-construction map
         for log_prob, prev_word, curr_word in next_level:
             entry = back_map.setdefault(curr_word, [])
             # print("curr_word:", curr_word)
@@ -49,6 +50,8 @@ def beam_search(prev_words, tokens, length, k, predict_fn, training_result):
         prev_level = next_level
 
     results = []
+    # constructing the complete phrases backtracking
+    # from the last level of beam search
     for log_prob, prev_word, curr_word in prev_level:
         total_sum = 0.0
         phrase = ""
@@ -65,6 +68,7 @@ def beam_search(prev_words, tokens, length, k, predict_fn, training_result):
         # print("done with one phrase===============")
         results.append((total_sum, phrase))
 
+    # sort the result by log probability and return the top k choices
     results = sorted(results, key = lambda x: x[0], reverse=True)
     return list(map(lambda x: x[1], results))[: k]
 
