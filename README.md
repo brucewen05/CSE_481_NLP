@@ -15,4 +15,5 @@ http://very-natural.blogspot.com/2017/04/3-formal-proposal.html
     * **`data/data_lcmc_clean.json`** contains mappings without any added noise. In the current version, with `context_window=10, max_input_window=5`, the resulting file will be around 700MB. Change the `first_n` parameter to generate a smaller file.
 
 ### Evaluation
-* run ** `python3 eval.py --model [model] --k [k]`**
+* To run evaluatoin
+    ** run `python3 eval.py --model [model] --k [k]`
