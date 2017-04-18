@@ -1,11 +1,43 @@
+import codecs
 
-with open("data/valid_pinyins.txt") as f:
+
+# extracts valid full pinyins
+with codecs.open("data/valid_pinyins.txt", encoding='utf-8') as f:
     lines = f.readlines()
 valid_pinyins = set([line.strip() for line in lines])
 
 valid_prefixes = ["b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j",
         "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"]
 invalid_single_char = ["i", "u", "v"]
+
+full_pinyin_candidates = {}
+pinyin_prefix_candidates = {}
+
+# constructs candidate map
+with codecs.open("data/pinyin_char_dictionary.txt", encoding='utf-8') as f:
+    lines = f.readlines()
+for line in [line.strip() for line in lines]:
+    tokens = line.split("=")
+    full_py = tokens[0]
+    for char in tokens[1].split(","):
+        if full_py not in full_pinyin_candidates:
+            full_pinyin_candidates[full_py] = []
+        full_pinyin_candidates[full_py] += [char]
+        
+        if full_py[0] in valid_prefixes or full_py[:2] in valid_prefixes:
+            prefix = full_py[:2] if len(full_py) > 2 and full_py[:2] in valid_prefixes \
+                else full_py[0]
+            if prefix not in pinyin_prefix_candidates:
+                pinyin_prefix_candidates[prefix] = []
+            pinyin_prefix_candidates[prefix] += [char]
+
+
+def get_pinyin_candidates(pinyin_or_prefix, allow_prefix=True):
+    if pinyin_or_prefix in valid_prefixes:
+        return pinyin_prefix_candidates[pinyin_or_prefix]
+    elif pinyin_or_prefix in valid_pinyins:
+        return full_pinyin_candidates[pinyin_or_prefix]
+    return None
 
 def next_syllable(pinyin_input, allow_invalid_single=True):
     tokens = segment_with_hint(pinyin_input, allow_invalid_single)
@@ -60,4 +92,7 @@ if __name__ == "__main__":
     assert segment_with_hint("'xx'''x''") == ["x", "x", "x"]
     assert segment_with_hint("u") == ["u"]
     assert segment_with_hint("u", allow_invalid_single=False) == []
+    
     assert next_syllable("nihaoa") == "ni"
+
+    assert set(get_pinyin_candidates("a")) == set(["呵","吖","錒","啊","阿","嗄","锕","腌"])
