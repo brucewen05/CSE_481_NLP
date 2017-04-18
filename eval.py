@@ -19,7 +19,7 @@ def predict(config):
     predictions = []
     for data in testset:
         (context, pinyin, label) = data
-        prediction = model_func(context, pu.segment_with_hint(pinyin.replace(" ", "")))
+        prediction = model_func(context, pu.segment_with_hint(metric.normalize_text(pinyin)))
         predictions.append(prediction)
     pprint.pprint(metric.evaluate(testset, predictions, config.k))
 
