@@ -16,4 +16,4 @@ http://very-natural.blogspot.com/2017/04/3-formal-proposal.html
 
 ### Evaluation
 * To run evaluatoin
-    ** run `python3 eval.py --model [model] --k [k]`
+    * ** run `python3 eval.py --model [model] --k [k]`
