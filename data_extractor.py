@@ -3,6 +3,7 @@ import json
 import codecs
 import pickle
 import lcmc_queries as lcmc
+import pinyin_util as pu
 
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
@@ -46,6 +47,8 @@ def build_parallel_paragraphs_sms():
 def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, first_n=None, min_paragraph_len=6):
     # triples[i] = (context, pinyins, chars)
     triples = []
+    all_valid_chars = pu.get_all_candidates_chars()
+
     for pp in paragraph_pairs:
         if len(pp[0]) != len(pp[1]):
             # print(''.join(pp[0]) + " ==> " + ' '.join(pp[1]))
@@ -57,7 +60,7 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
         # TODO: Consider only putting cursor and input window on word boundaries
         for cursor in range(1, len(pp[0])):
             for input_window_end in range(cursor + 1, min(cursor + max_input_window + 1, len(pp[0]))):
-                if len([i for i in range(cursor, input_window_end) if re.match(r'[^a-z]', pp[1][i])]) > 0:
+                if len([i for i in range(cursor, input_window_end) if not pp[0][i] in all_valid_chars]) > 0:
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
@@ -74,9 +77,16 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
 if __name__ == "__main__":
     # 61 MB
     with open('data/sms_clean.data', 'wb') as outfile:
-        pickle.dump(extract_triples(build_parallel_paragraphs_sms()), outfile, pickle.HIGHEST_PROTOCOL, min_paragraph_len=4)
+        data = extract_triples(build_parallel_paragraphs_sms(), min_paragraph_len=4)        
+        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    with open('data/sms_clean.sample', 'w') as outfile:
+        sample = json.dumps(data[:100], indent=4, sort_keys=True)
+        outfile.write(sample)
 
     # 323 MB
     with open('data/lcmc_clean.data', 'wb') as outfile:
-        pickle.dump(extract_triples(build_parallel_paragraphs_lcmc()), outfile, pickle.HIGHEST_PROTOCOL)
-    
+        data = extract_triples(build_parallel_paragraphs_lcmc())
+        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    with open('data/lcmc_clean.sample', 'w') as outfile:
+        sample = json.dumps(data[:100], indent=4, sort_keys=True)
+        outfile.write(sample)    

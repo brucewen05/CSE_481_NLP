@@ -81,6 +81,11 @@ def segment_input(pinyin_input, allow_invalid_single=True):
     # print(tokens)
     return tokens
 
+def get_all_candidates_chars():
+    res = set()
+    for chars in full_pinyin_candidates.values():
+        res = res.union(set(chars))
+    return res
 
 if __name__ == "__main__":
     # tests
