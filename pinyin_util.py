@@ -95,4 +95,8 @@ if __name__ == "__main__":
     
     assert next_syllable("nihaoa") == "ni"
 
+    assert set(get_pinyin_candidates("diu")) == set(["铥","丢","銩","丟","颩"])
+    assert set(["铥","丢","銩","丟","颩"]).issubset(set(get_pinyin_candidates("d")))
+    assert not set(["丢"]).issubset(set(get_pinyin_candidates("di")))
     assert set(get_pinyin_candidates("a")) == set(["呵","吖","錒","啊","阿","嗄","锕","腌"])
+    assert get_pinyin_candidates("u") is None

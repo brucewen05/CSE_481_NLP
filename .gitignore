@@ -1,5 +1,6 @@
 /data/*.json
 /data/*.db3
+/data/*.data
 __pycache__/
 *~
 model/*_model
