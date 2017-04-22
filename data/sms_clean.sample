@@ -1,502 +1,502 @@
 [
     [
         "^",
-        "lao",
-        "\u8001"
+        "mei",
+        "\u6ca1"
     ],
     [
         "^",
-        "lao shi",
-        "\u8001 \u5e08"
+        "mei shi",
+        "\u6ca1 \u4e8b"
     ],
     [
-        "^ \u8001",
+        "^",
+        "mei shi qing",
+        "\u6ca1 \u4e8b \u60c5"
+    ],
+    [
+        "^",
+        "mei shi qing zuo",
+        "\u6ca1 \u4e8b \u60c5 \u505a"
+    ],
+    [
+        "^",
+        "mei shi qing zuo a",
+        "\u6ca1 \u4e8b \u60c5 \u505a \u554a"
+    ],
+    [
+        "^ \u6ca1",
         "shi",
-        "\u5e08"
+        "\u4e8b"
     ],
     [
-        "^ \u8001 \u5e08 ,",
-        "ma",
-        "\u5988"
+        "^ \u6ca1",
+        "shi qing",
+        "\u4e8b \u60c5"
     ],
     [
-        "^ \u8001 \u5e08 ,",
-        "ma mi",
-        "\u5988 \u54aa"
+        "^ \u6ca1",
+        "shi qing zuo",
+        "\u4e8b \u60c5 \u505a"
     ],
     [
-        "^ \u8001 \u5e08 ,",
-        "ma mi hua",
-        "\u5988 \u54aa \u8bdd"
+        "^ \u6ca1",
+        "shi qing zuo a",
+        "\u4e8b \u60c5 \u505a \u554a"
     ],
     [
-        "^ \u8001 \u5e08 ,",
-        "ma mi hua xiang",
-        "\u5988 \u54aa \u8bdd \u60f3"
+        "^ \u6ca1 \u4e8b",
+        "qing",
+        "\u60c5"
     ],
     [
-        "^ \u8001 \u5e08 ,",
-        "ma mi hua xiang mai",
-        "\u5988 \u54aa \u8bdd \u60f3 \u4e70"
+        "^ \u6ca1 \u4e8b",
+        "qing zuo",
+        "\u60c5 \u505a"
     ],
     [
-        "^ \u8001 \u5e08 , \u5988",
-        "mi",
-        "\u54aa"
+        "^ \u6ca1 \u4e8b",
+        "qing zuo a",
+        "\u60c5 \u505a \u554a"
     ],
     [
-        "^ \u8001 \u5e08 , \u5988",
-        "mi hua",
-        "\u54aa \u8bdd"
+        "^ \u6ca1 \u4e8b \u60c5",
+        "zuo",
+        "\u505a"
     ],
     [
-        "^ \u8001 \u5e08 , \u5988",
-        "mi hua xiang",
-        "\u54aa \u8bdd \u60f3"
+        "^ \u6ca1 \u4e8b \u60c5",
+        "zuo a",
+        "\u505a \u554a"
     ],
     [
-        "^ \u8001 \u5e08 , \u5988",
-        "mi hua xiang mai",
-        "\u54aa \u8bdd \u60f3 \u4e70"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988",
-        "mi hua xiang mai he",
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa",
-        "hua",
-        "\u8bdd"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa",
-        "hua xiang",
-        "\u8bdd \u60f3"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa",
-        "hua xiang mai",
-        "\u8bdd \u60f3 \u4e70"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa",
-        "hua xiang mai he",
-        "\u8bdd \u60f3 \u4e70 \u76d2"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa",
-        "hua xiang mai he yue",
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd",
-        "xiang",
-        "\u60f3"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd",
-        "xiang mai",
-        "\u60f3 \u4e70"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd",
-        "xiang mai he",
-        "\u60f3 \u4e70 \u76d2"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd",
-        "xiang mai he yue",
-        "\u60f3 \u4e70 \u76d2 \u6708"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd",
-        "xiang mai he yue bing",
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3",
-        "mai",
-        "\u4e70"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3",
-        "mai he",
-        "\u4e70 \u76d2"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3",
-        "mai he yue",
-        "\u4e70 \u76d2 \u6708"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3",
-        "mai he yue bing",
-        "\u4e70 \u76d2 \u6708 \u997c"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3",
-        "mai he yue bing bi",
-        "\u4e70 \u76d2 \u6708 \u997c \u6bd4"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70",
-        "he",
-        "\u76d2"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70",
-        "he yue",
-        "\u76d2 \u6708"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70",
-        "he yue bing",
-        "\u76d2 \u6708 \u997c"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70",
-        "he yue bing bi",
-        "\u76d2 \u6708 \u997c \u6bd4"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70",
-        "he yue bing bi ni",
-        "\u76d2 \u6708 \u997c \u6bd4 \u4f60"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2",
-        "yue",
-        "\u6708"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2",
-        "yue bing",
-        "\u6708 \u997c"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2",
-        "yue bing bi",
-        "\u6708 \u997c \u6bd4"
-    ],
-    [
-        "^ \u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2",
-        "yue bing bi ni",
-        "\u6708 \u997c \u6bd4 \u4f60"
-    ],
-    [
-        "\u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708",
-        "bing",
-        "\u997c"
-    ],
-    [
-        "\u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708",
-        "bing bi",
-        "\u997c \u6bd4"
-    ],
-    [
-        "\u8001 \u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708",
-        "bing bi ni",
-        "\u997c \u6bd4 \u4f60"
-    ],
-    [
-        "\u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c",
-        "bi",
-        "\u6bd4"
-    ],
-    [
-        "\u5e08 , \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c",
-        "bi ni",
-        "\u6bd4 \u4f60"
-    ],
-    [
-        ", \u5988 \u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4",
-        "ni",
-        "\u4f60"
-    ],
-    [
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 ,",
-        "ni",
-        "\u4f60"
-    ],
-    [
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 ,",
-        "ni yao",
-        "\u4f60 \u8981"
-    ],
-    [
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 ,",
-        "ni yao chuan",
-        "\u4f60 \u8981 \u4f20"
-    ],
-    [
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 ,",
-        "ni yao chuan tong",
-        "\u4f60 \u8981 \u4f20 \u7edf"
-    ],
-    [
-        "\u54aa \u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 ,",
-        "ni yao chuan tong ding",
-        "\u4f60 \u8981 \u4f20 \u7edf \u5b9a"
-    ],
-    [
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60",
-        "yao",
-        "\u8981"
-    ],
-    [
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60",
-        "yao chuan",
-        "\u8981 \u4f20"
-    ],
-    [
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60",
-        "yao chuan tong",
-        "\u8981 \u4f20 \u7edf"
-    ],
-    [
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60",
-        "yao chuan tong ding",
-        "\u8981 \u4f20 \u7edf \u5b9a"
-    ],
-    [
-        "\u8bdd \u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60",
-        "yao chuan tong ding bing",
-        "\u8981 \u4f20 \u7edf \u5b9a \u51b0"
-    ],
-    [
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981",
-        "chuan",
-        "\u4f20"
-    ],
-    [
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981",
-        "chuan tong",
-        "\u4f20 \u7edf"
-    ],
-    [
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981",
-        "chuan tong ding",
-        "\u4f20 \u7edf \u5b9a"
-    ],
-    [
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981",
-        "chuan tong ding bing",
-        "\u4f20 \u7edf \u5b9a \u51b0"
-    ],
-    [
-        "\u60f3 \u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981",
-        "chuan tong ding bing pi",
-        "\u4f20 \u7edf \u5b9a \u51b0 \u76ae"
-    ],
-    [
-        "\u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20",
-        "tong",
-        "\u7edf"
-    ],
-    [
-        "\u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20",
-        "tong ding",
-        "\u7edf \u5b9a"
-    ],
-    [
-        "\u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20",
-        "tong ding bing",
-        "\u7edf \u5b9a \u51b0"
-    ],
-    [
-        "\u4e70 \u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20",
-        "tong ding bing pi",
-        "\u7edf \u5b9a \u51b0 \u76ae"
-    ],
-    [
-        "\u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf",
-        "ding",
-        "\u5b9a"
-    ],
-    [
-        "\u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf",
-        "ding bing",
-        "\u5b9a \u51b0"
-    ],
-    [
-        "\u76d2 \u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf",
-        "ding bing pi",
-        "\u5b9a \u51b0 \u76ae"
-    ],
-    [
-        "\u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf \u5b9a",
-        "bing",
-        "\u51b0"
-    ],
-    [
-        "\u6708 \u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf \u5b9a",
-        "bing pi",
-        "\u51b0 \u76ae"
-    ],
-    [
-        "\u997c \u6bd4 \u4f60 , \u4f60 \u8981 \u4f20 \u7edf \u5b9a \u51b0",
-        "pi",
-        "\u76ae"
+        "^ \u6ca1 \u4e8b \u60c5 \u505a",
+        "a",
+        "\u554a"
     ],
     [
         "^",
-        "ni",
-        "\u4f60"
+        "jiu",
+        "\u5c31"
     ],
     [
         "^",
-        "ni ji",
-        "\u4f60 \u51e0"
+        "jiu wo",
+        "\u5c31 \u6211"
     ],
     [
         "^",
-        "ni ji shi",
-        "\u4f60 \u51e0 \u65f6"
+        "jiu wo yi",
+        "\u5c31 \u6211 \u4e00"
     ],
     [
-        "^",
-        "ni ji shi fan",
-        "\u4f60 \u51e0 \u65f6 \u8fd4"
-    ],
-    [
-        "^",
-        "ni ji shi fan li",
-        "\u4f60 \u51e0 \u65f6 \u8fd4 \u9ece"
-    ],
-    [
-        "^ \u4f60",
-        "ji",
-        "\u51e0"
-    ],
-    [
-        "^ \u4f60",
-        "ji shi",
-        "\u51e0 \u65f6"
-    ],
-    [
-        "^ \u4f60",
-        "ji shi fan",
-        "\u51e0 \u65f6 \u8fd4"
-    ],
-    [
-        "^ \u4f60",
-        "ji shi fan li",
-        "\u51e0 \u65f6 \u8fd4 \u9ece"
-    ],
-    [
-        "^ \u4f60",
-        "ji shi fan li jiao",
-        "\u51e0 \u65f6 \u8fd4 \u9ece \u6559"
-    ],
-    [
-        "^ \u4f60 \u51e0",
-        "shi",
-        "\u65f6"
-    ],
-    [
-        "^ \u4f60 \u51e0",
-        "shi fan",
-        "\u65f6 \u8fd4"
-    ],
-    [
-        "^ \u4f60 \u51e0",
-        "shi fan li",
-        "\u65f6 \u8fd4 \u9ece"
-    ],
-    [
-        "^ \u4f60 \u51e0",
-        "shi fan li jiao",
-        "\u65f6 \u8fd4 \u9ece \u6559"
-    ],
-    [
-        "^ \u4f60 \u51e0",
-        "shi fan li jiao wo",
-        "\u65f6 \u8fd4 \u9ece \u6559 \u6211"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6",
-        "fan",
-        "\u8fd4"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6",
-        "fan li",
-        "\u8fd4 \u9ece"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6",
-        "fan li jiao",
-        "\u8fd4 \u9ece \u6559"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6",
-        "fan li jiao wo",
-        "\u8fd4 \u9ece \u6559 \u6211"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6",
-        "fan li jiao wo tian",
-        "\u8fd4 \u9ece \u6559 \u6211 \u586b"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4",
-        "li",
-        "\u9ece"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4",
-        "li jiao",
-        "\u9ece \u6559"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4",
-        "li jiao wo",
-        "\u9ece \u6559 \u6211"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4",
-        "li jiao wo tian",
-        "\u9ece \u6559 \u6211 \u586b"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4",
-        "li jiao wo tian fen",
-        "\u9ece \u6559 \u6211 \u586b \u4efd"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece",
-        "jiao",
-        "\u6559"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece",
-        "jiao wo",
-        "\u6559 \u6211"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece",
-        "jiao wo tian",
-        "\u6559 \u6211 \u586b"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece",
-        "jiao wo tian fen",
-        "\u6559 \u6211 \u586b \u4efd"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece",
-        "jiao wo tian fen biao",
-        "\u6559 \u6211 \u586b \u4efd \u8868"
-    ],
-    [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece \u6559",
+        "^ \u5c31",
         "wo",
         "\u6211"
     ],
     [
-        "^ \u4f60 \u51e0 \u65f6 \u8fd4 \u9ece \u6559",
-        "wo tian",
-        "\u6211 \u586b"
+        "^ \u5c31",
+        "wo yi",
+        "\u6211 \u4e00"
+    ],
+    [
+        "^ \u5c31 \u6211",
+        "yi",
+        "\u4e00"
+    ],
+    [
+        "^",
+        "en",
+        "\u55ef"
+    ],
+    [
+        "^",
+        "shen",
+        "\u4ec0"
+    ],
+    [
+        "^",
+        "shen me",
+        "\u4ec0 \u4e48"
+    ],
+    [
+        "^",
+        "shen me bu",
+        "\u4ec0 \u4e48 \u4e0d"
+    ],
+    [
+        "^",
+        "shen me bu liao",
+        "\u4ec0 \u4e48 \u4e0d \u4e86"
+    ],
+    [
+        "^",
+        "shen me bu liao jie",
+        "\u4ec0 \u4e48 \u4e0d \u4e86 \u89e3"
+    ],
+    [
+        "^ \u4ec0",
+        "me",
+        "\u4e48"
+    ],
+    [
+        "^ \u4ec0",
+        "me bu",
+        "\u4e48 \u4e0d"
+    ],
+    [
+        "^ \u4ec0",
+        "me bu liao",
+        "\u4e48 \u4e0d \u4e86"
+    ],
+    [
+        "^ \u4ec0",
+        "me bu liao jie",
+        "\u4e48 \u4e0d \u4e86 \u89e3"
+    ],
+    [
+        "^ \u4ec0 \u4e48",
+        "bu",
+        "\u4e0d"
+    ],
+    [
+        "^ \u4ec0 \u4e48",
+        "bu liao",
+        "\u4e0d \u4e86"
+    ],
+    [
+        "^ \u4ec0 \u4e48",
+        "bu liao jie",
+        "\u4e0d \u4e86 \u89e3"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d",
+        "liao",
+        "\u4e86"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d",
+        "liao jie",
+        "\u4e86 \u89e3"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86",
+        "jie",
+        "\u89e3"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _",
+        "jian",
+        "\u89c1"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _",
+        "jian mian",
+        "\u89c1 \u9762"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _",
+        "jian mian zai",
+        "\u89c1 \u9762 \u518d"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _",
+        "jian mian zai shuo",
+        "\u89c1 \u9762 \u518d \u8bf4"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1",
+        "mian",
+        "\u9762"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1",
+        "mian zai",
+        "\u9762 \u518d"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1",
+        "mian zai shuo",
+        "\u9762 \u518d \u8bf4"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1 \u9762",
+        "zai",
+        "\u518d"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1 \u9762",
+        "zai shuo",
+        "\u518d \u8bf4"
+    ],
+    [
+        "^ \u4ec0 \u4e48 \u4e0d \u4e86 \u89e3 _ \u89c1 \u9762 \u518d",
+        "shuo",
+        "\u8bf4"
+    ],
+    [
+        "^",
+        "ming",
+        "\u660e"
+    ],
+    [
+        "^",
+        "ming tian",
+        "\u660e \u5929"
+    ],
+    [
+        "^",
+        "ming tian yao",
+        "\u660e \u5929 \u8981"
+    ],
+    [
+        "^",
+        "ming tian yao xia",
+        "\u660e \u5929 \u8981 \u4e0b"
+    ],
+    [
+        "^",
+        "ming tian yao xia yu",
+        "\u660e \u5929 \u8981 \u4e0b \u96e8"
+    ],
+    [
+        "^ \u660e",
+        "tian",
+        "\u5929"
+    ],
+    [
+        "^ \u660e",
+        "tian yao",
+        "\u5929 \u8981"
+    ],
+    [
+        "^ \u660e",
+        "tian yao xia",
+        "\u5929 \u8981 \u4e0b"
+    ],
+    [
+        "^ \u660e",
+        "tian yao xia yu",
+        "\u5929 \u8981 \u4e0b \u96e8"
+    ],
+    [
+        "^ \u660e \u5929",
+        "yao",
+        "\u8981"
+    ],
+    [
+        "^ \u660e \u5929",
+        "yao xia",
+        "\u8981 \u4e0b"
+    ],
+    [
+        "^ \u660e \u5929",
+        "yao xia yu",
+        "\u8981 \u4e0b \u96e8"
+    ],
+    [
+        "^ \u660e \u5929 \u8981",
+        "xia",
+        "\u4e0b"
+    ],
+    [
+        "^ \u660e \u5929 \u8981",
+        "xia yu",
+        "\u4e0b \u96e8"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b",
+        "yu",
+        "\u96e8"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c",
+        "chu",
+        "\u51fa"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c",
+        "chu men",
+        "\u51fa \u95e8"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c",
+        "chu men de",
+        "\u51fa \u95e8 \u7684"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c",
+        "chu men de shi",
+        "\u51fa \u95e8 \u7684 \u65f6"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c",
+        "chu men de shi hou",
+        "\u51fa \u95e8 \u7684 \u65f6 \u5019"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa",
+        "men",
+        "\u95e8"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa",
+        "men de",
+        "\u95e8 \u7684"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa",
+        "men de shi",
+        "\u95e8 \u7684 \u65f6"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa",
+        "men de shi hou",
+        "\u95e8 \u7684 \u65f6 \u5019"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa",
+        "men de shi hou bu",
+        "\u95e8 \u7684 \u65f6 \u5019 \u4e0d"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8",
+        "de",
+        "\u7684"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8",
+        "de shi",
+        "\u7684 \u65f6"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8",
+        "de shi hou",
+        "\u7684 \u65f6 \u5019"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8",
+        "de shi hou bu",
+        "\u7684 \u65f6 \u5019 \u4e0d"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8",
+        "de shi hou bu yao",
+        "\u7684 \u65f6 \u5019 \u4e0d \u8981"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684",
+        "shi",
+        "\u65f6"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684",
+        "shi hou",
+        "\u65f6 \u5019"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684",
+        "shi hou bu",
+        "\u65f6 \u5019 \u4e0d"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684",
+        "shi hou bu yao",
+        "\u65f6 \u5019 \u4e0d \u8981"
+    ],
+    [
+        "^ \u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684",
+        "shi hou bu yao wang",
+        "\u65f6 \u5019 \u4e0d \u8981 \u5fd8"
+    ],
+    [
+        "\u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6",
+        "hou",
+        "\u5019"
+    ],
+    [
+        "\u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6",
+        "hou bu",
+        "\u5019 \u4e0d"
+    ],
+    [
+        "\u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6",
+        "hou bu yao",
+        "\u5019 \u4e0d \u8981"
+    ],
+    [
+        "\u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6",
+        "hou bu yao wang",
+        "\u5019 \u4e0d \u8981 \u5fd8"
+    ],
+    [
+        "\u660e \u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6",
+        "hou bu yao wang ji",
+        "\u5019 \u4e0d \u8981 \u5fd8 \u8bb0"
+    ],
+    [
+        "\u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019",
+        "bu",
+        "\u4e0d"
+    ],
+    [
+        "\u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019",
+        "bu yao",
+        "\u4e0d \u8981"
+    ],
+    [
+        "\u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019",
+        "bu yao wang",
+        "\u4e0d \u8981 \u5fd8"
+    ],
+    [
+        "\u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019",
+        "bu yao wang ji",
+        "\u4e0d \u8981 \u5fd8 \u8bb0"
+    ],
+    [
+        "\u5929 \u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019",
+        "bu yao wang ji dai",
+        "\u4e0d \u8981 \u5fd8 \u8bb0 \u5e26"
+    ],
+    [
+        "\u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d",
+        "yao",
+        "\u8981"
+    ],
+    [
+        "\u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d",
+        "yao wang",
+        "\u8981 \u5fd8"
+    ],
+    [
+        "\u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d",
+        "yao wang ji",
+        "\u8981 \u5fd8 \u8bb0"
+    ],
+    [
+        "\u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d",
+        "yao wang ji dai",
+        "\u8981 \u5fd8 \u8bb0 \u5e26"
+    ],
+    [
+        "\u8981 \u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d",
+        "yao wang ji dai san",
+        "\u8981 \u5fd8 \u8bb0 \u5e26 \u4f1e"
+    ],
+    [
+        "\u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d \u8981",
+        "wang",
+        "\u5fd8"
+    ],
+    [
+        "\u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d \u8981",
+        "wang ji",
+        "\u5fd8 \u8bb0"
+    ],
+    [
+        "\u4e0b \u96e8 \uff0c \u51fa \u95e8 \u7684 \u65f6 \u5019 \u4e0d \u8981",
+        "wang ji dai",
+        "\u5fd8 \u8bb0 \u5e26"
     ]
 ]

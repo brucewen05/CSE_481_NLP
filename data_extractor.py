@@ -25,14 +25,15 @@ def build_parallel_paragraphs_lcmc():
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
 
-def build_parallel_paragraphs_sms():
+def build_parallel_paragraphs_from_txt(filename):
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
 
-    with codecs.open('data/nus_sms_chinese.txt', encoding='utf-8') as f:
+    with codecs.open(filename, encoding='utf-8') as f:
         lines = f.readlines()
     lines = [x.strip() for x in lines]
+    lines = list(set(lines))
     
     for i in range(len(lines)):
         parts = lines[i].split('==>')
@@ -75,18 +76,28 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
 
 
 if __name__ == "__main__":
+    print("Extracting sms data...")
     # 61 MB
     with open('data/sms_clean.data', 'wb') as outfile:
-        data = extract_triples(build_parallel_paragraphs_sms(), min_paragraph_len=4)        
+        data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)        
         pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
     with open('data/sms_clean.sample', 'w') as outfile:
         sample = json.dumps(data[:100], indent=4, sort_keys=True)
         outfile.write(sample)
 
+    print("Extracting lcmc data...")
     # 323 MB
     with open('data/lcmc_clean.data', 'wb') as outfile:
         data = extract_triples(build_parallel_paragraphs_lcmc())
         pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
     with open('data/lcmc_clean.sample', 'w') as outfile:
         sample = json.dumps(data[:100], indent=4, sort_keys=True)
-        outfile.write(sample)    
+        outfile.write(sample)
+
+    print("Extracting weibo data...")
+    with open('data/weibo_clean.data', 'wb') as outfile:
+        data = extract_triples(build_parallel_paragraphs_from_txt('data/weibo.txt'), min_paragraph_len=4, first_n=1000000)
+        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    with open('data/weibo_clean.sample', 'w') as outfile:
+        sample = json.dumps(data[:100], indent=4, sort_keys=True)
+        outfile.write(sample)
