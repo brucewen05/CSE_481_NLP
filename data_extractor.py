@@ -37,7 +37,7 @@ def build_parallel_paragraphs_from_txt(filename):
     lines = list(set(lines))
     
     for i in range(len(lines)):
-        parts = lines[i].split('==>')
+        parts = lines[i].split(' ==> ')
         p = re.sub(r'([^a-z ])', r' \1 ', "^" + parts[1])
         char_paragraphs.append(list("^" + parts[0]))
         pinyin_paragraphs.append(p.split())
@@ -47,6 +47,7 @@ def build_parallel_paragraphs_from_txt(filename):
 # min_paragraph_len includes "^"
 # first_n: only extract the first n triples
 def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, first_n=None, min_paragraph_len=6):
+    print(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
     all_valid_chars = pu.get_all_candidates_chars()
@@ -121,12 +122,11 @@ def gen_source_target_files(triples, filename):
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
-    print("Generating vocab...")
-    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
+    # print("Generating vocab...")
+    # gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
 
     print("Extracting sms data...")
-    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4, first_n=100000)        
-    print(len(data))
+    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4, first_n=500000)
     gen_source_target_files(data, "sms_small")
     
     # with open('data/sms_clean.data', 'wb') as outfile:
