@@ -2,6 +2,9 @@
 /data/*.db3
 /data/*.data
 /data/weibo.txt
+/data/train/*
+/data/dev/*
+/data/test/*
 __pycache__/
 *~
 model/*_model

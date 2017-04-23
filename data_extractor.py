@@ -2,6 +2,7 @@ import re
 import json
 import codecs
 import pickle
+import operator
 import lcmc_queries as lcmc
 import pinyin_util as pu
 
@@ -74,6 +75,23 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
     print(len(triples))
     return triples
 
+def gen_vocab(raw_file, filename):
+    with codecs.open(raw_file, encoding='utf-8') as f:
+        lines = f.readlines()
+    lines = [line.strip() for line in lines]
+    c = {}
+    for line in lines:
+        tokens = list(line)
+        for token in tokens:
+            if not token in c:
+                c[token] = 0
+            c[token] = c[token] + 1
+
+    with codecs.open(filename, 'w', encoding='utf-8') as fout:
+        for tup in sorted(c.items(), key=operator.itemgetter(1), reverse=True):
+            print(tup[1])
+            fout.write(tup[0] + "\t" + str(tup[1]) + "\n")
+
 def gen_source_target_files(triples, filename):
     n = len(triples)
     train_size = int(n * .7)
@@ -103,8 +121,12 @@ def gen_source_target_files(triples, filename):
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
+    print("Generating vocab...")
+    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
+
     print("Extracting sms data...")
     data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4, first_n=100000)        
+    print(len(data))
     gen_source_target_files(data, "sms_small")
     
     # with open('data/sms_clean.data', 'wb') as outfile:
