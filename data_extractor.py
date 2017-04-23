@@ -71,33 +71,61 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     triples.append((" ".join(context), " ".join(pinyins), " ".join(chars)))
                     if first_n is not None and len(triples) == first_n:
                         return triples
-    # print(len(triples))
+    print(len(triples))
     return triples
 
+def gen_source_target_files(triples, filename):
+    n = len(triples)
+    train_size = int(n * .7)
+    dev_size = int(n * .1)
+    test_size = n - train_size - dev_size
+    print("train: " + str(train_size))
+    print("dev: " + str(dev_size))
+    print("test: " + str(test_size))
+
+    with codecs.open("data/train/" + filename + ".source", 'w', encoding='utf-8') as train_source:
+        with codecs.open("data/train/" + filename + ".target", 'w', encoding='utf-8') as train_target:
+            with codecs.open("data/dev/" + filename + ".source", 'w', encoding='utf-8') as dev_source:
+                with codecs.open("data/dev/" + filename + ".target", 'w', encoding='utf-8') as dev_target:
+                    with codecs.open("data/test/" + filename + ".source", 'w', encoding='utf-8') as test_source:
+                        with codecs.open("data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
+                            
+                            for tup in triples[:train_size]:
+                                train_source.write(tup[0] + " | " + tup[1] + "\n")
+                                train_target.write(tup[2] + "\n")
+                            
+                            for tup in triples[train_size:train_size + dev_size]:
+                                dev_source.write(tup[0] + " | " + tup[1] + "\n")
+                                dev_target.write(tup[2] + "\n")
+                            
+                            for tup in triples[train_size + dev_size:]:
+                                test_source.write(tup[0] + " | " + tup[1] + "\n")
+                                test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
     print("Extracting sms data...")
-    # 61 MB
-    with open('data/sms_clean.data', 'wb') as outfile:
-        data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)        
-        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    with open('data/sms_clean.sample', 'w') as outfile:
-        sample = json.dumps(data[:100], indent=4, sort_keys=True)
-        outfile.write(sample)
+    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4, first_n=100000)        
+    gen_source_target_files(data, "sms_small")
+    
+    # with open('data/sms_clean.data', 'wb') as outfile:
+        # pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    # with open('data/sms_clean.sample', 'w') as outfile:
+    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
+    #     outfile.write(sample)
 
-    print("Extracting lcmc data...")
-    # 323 MB
-    with open('data/lcmc_clean.data', 'wb') as outfile:
-        data = extract_triples(build_parallel_paragraphs_lcmc())
-        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    with open('data/lcmc_clean.sample', 'w') as outfile:
-        sample = json.dumps(data[:100], indent=4, sort_keys=True)
-        outfile.write(sample)
+    # print("Extracting lcmc data...")
+    # data = extract_triples(build_parallel_paragraphs_lcmc())
+    # with open('data/lcmc_clean.data', 'wb') as outfile:
+    #     pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    # with open('data/lcmc_clean.sample', 'w') as outfile:
+    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
+    #     outfile.write(sample)
 
-    print("Extracting weibo data...")
-    with open('data/weibo_clean.data', 'wb') as outfile:
-        data = extract_triples(build_parallel_paragraphs_from_txt('data/weibo.txt'), min_paragraph_len=4, first_n=1000000)
-        pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    with open('data/weibo_clean.sample', 'w') as outfile:
-        sample = json.dumps(data[:100], indent=4, sort_keys=True)
-        outfile.write(sample)
+    # print("Extracting weibo data...")
+
+    # data = extract_triples(build_parallel_paragraphs_from_txt('data/weibo.txt'), min_paragraph_len=4, first_n=1000000)
+    # with open('data/weibo_clean.data', 'wb') as outfile:
+    #     pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
+    # with open('data/weibo_clean.sample', 'w') as outfile:
+    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
+    #     outfile.write(sample)
