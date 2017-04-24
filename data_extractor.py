@@ -47,7 +47,7 @@ def build_parallel_paragraphs_from_txt(filename):
 # min_paragraph_len includes "^"
 # first_n: only extract the first n triples
 def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, first_n=None, min_paragraph_len=6):
-    print(len(paragraph_pairs))
+    # print(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
     all_valid_chars = pu.get_all_candidates_chars()
@@ -90,7 +90,6 @@ def gen_vocab(raw_file, filename):
 
     with codecs.open(filename, 'w', encoding='utf-8') as fout:
         for tup in sorted(c.items(), key=operator.itemgetter(1), reverse=True):
-            print(tup[1])
             fout.write(tup[0] + "\t" + str(tup[1]) + "\n")
 
 def gen_source_target_files(triples, filename):
@@ -110,24 +109,24 @@ def gen_source_target_files(triples, filename):
                         with codecs.open("data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
                             
                             for tup in triples[:train_size]:
-                                train_source.write(tup[0] + " | " + tup[1] + "\n")
+                                train_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 train_target.write(tup[2] + "\n")
                             
                             for tup in triples[train_size:train_size + dev_size]:
-                                dev_source.write(tup[0] + " | " + tup[1] + "\n")
+                                dev_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 dev_target.write(tup[2] + "\n")
                             
                             for tup in triples[train_size + dev_size:]:
-                                test_source.write(tup[0] + " | " + tup[1] + "\n")
+                                test_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
-    # print("Generating vocab...")
-    # gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
+    print("Generating vocab...")
+    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
 
     print("Extracting sms data...")
-    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4, first_n=500000)
-    gen_source_target_files(data, "sms_small")
+    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)
+    gen_source_target_files(data, "sms_large")
     
     # with open('data/sms_clean.data', 'wb') as outfile:
         # pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
