@@ -2,6 +2,8 @@
 /data/*.db3
 /data/*.data
 /data/weibo.txt
+/data/vocab
 __pycache__/
 *~
 model/*_model
+*.swp
