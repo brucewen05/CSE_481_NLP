@@ -122,7 +122,7 @@ def gen_source_target_files(triples, filename):
 
 if __name__ == "__main__":
     print("Generating vocab...")
-    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms.txt")
+    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
 
     print("Extracting sms data...")
     data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)
