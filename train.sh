@@ -55,4 +55,6 @@ python3 ${HOME}/notebooks/seq2seq/bin/train.py \
         - $DEV_TARGETS" \
 	--batch_size 32 \
 	--train_steps $TRAIN_STEPS \
-	--output_dir $model_dir
+	--output_dir $model_dir \
+	--save_checkpoints_steps 10000 \
+	--eval_every_n_steps 5000

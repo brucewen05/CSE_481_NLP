@@ -7,5 +7,5 @@
 /data/dev/*
 __pycache__/
 *~
-model/*_model
+model/
 *.swp
