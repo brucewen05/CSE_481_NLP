@@ -203,42 +203,41 @@ class Seq2SeqModel():
                     maximum_length=tf.reduce_max(self.encoder_inputs_length) + 3,
                     num_decoder_symbols=self.vocab_size,
                 )
-            # else:
-
+            else:
                 # attention_states: size [batch_size, max_time, num_units]
-                # attention_states = tf.transpose(self.encoder_outputs, [1, 0, 2])
+                attention_states = tf.transpose(self.encoder_outputs, [1, 0, 2])
 
-                # (attention_keys,
-                # attention_values,
-                # attention_score_fn,
-                # attention_construct_fn) = seq2seq.prepare_attention(
-                #     attention_states=attention_states,
-                #     attention_option="bahdanau",
-                #     num_units=self.decoder_hidden_units,
-                # )
+                (attention_keys,
+                attention_values,
+                attention_score_fn,
+                attention_construct_fn) = seq2seq.prepare_attention(
+                    attention_states=attention_states,
+                    attention_option="bahdanau",
+                    num_units=self.decoder_hidden_units,
+                )
 
-                # decoder_fn_train = seq2seq.attention_decoder_fn_train(
-                #     encoder_state=self.encoder_state,
-                #     attention_keys=attention_keys,
-                #     attention_values=attention_values,
-                #     attention_score_fn=attention_score_fn,
-                #     attention_construct_fn=attention_construct_fn,
-                #     name='attention_decoder'
-                # )
+                decoder_fn_train = seq2seq.attention_decoder_fn_train(
+                    encoder_state=self.encoder_state,
+                    attention_keys=attention_keys,
+                    attention_values=attention_values,
+                    attention_score_fn=attention_score_fn,
+                    attention_construct_fn=attention_construct_fn,
+                    name='attention_decoder'
+                )
 
-                # decoder_fn_inference = seq2seq.attention_decoder_fn_inference(
-                #     output_fn=output_fn,
-                #     encoder_state=self.encoder_state,
-                #     attention_keys=attention_keys,
-                #     attention_values=attention_values,
-                #     attention_score_fn=attention_score_fn,
-                #     attention_construct_fn=attention_construct_fn,
-                #     embeddings=self.embedding_matrix,
-                #     start_of_sequence_id=self.EOS,
-                #     end_of_sequence_id=self.EOS,
-                #     maximum_length=tf.reduce_max(self.encoder_inputs_length) + 3,
-                #     num_decoder_symbols=self.vocab_size,
-                # )
+                decoder_fn_inference = seq2seq.attention_decoder_fn_inference(
+                    output_fn=output_fn,
+                    encoder_state=self.encoder_state,
+                    attention_keys=attention_keys,
+                    attention_values=attention_values,
+                    attention_score_fn=attention_score_fn,
+                    attention_construct_fn=attention_construct_fn,
+                    embeddings=self.embedding_matrix,
+                    start_of_sequence_id=self.EOS,
+                    end_of_sequence_id=self.EOS,
+                    maximum_length=tf.reduce_max(self.encoder_inputs_length) + 3,
+                    num_decoder_symbols=self.vocab_size,
+                )
 
             (self.decoder_outputs_train,
              self.decoder_state_train,
@@ -278,6 +277,7 @@ class Seq2SeqModel():
                                           weights=self.loss_weights)
         self.train_op = tf.train.AdamOptimizer().minimize(self.loss)
 
+    # build the feed dictionary for one batch
     def make_train_inputs(self, input_seq, target_seq):
         inputs_, inputs_length_ = helpers.batch(input_seq)
         targets_, targets_length_ = helpers.batch(target_seq)
@@ -294,76 +294,4 @@ class Seq2SeqModel():
             self.encoder_inputs: inputs_,
             self.encoder_inputs_length: inputs_length_,
         }
-
-
-# def train_on_ime_task(session, model, batches,
-#                       batch_size=100,
-#                       max_batches=5000,
-#                       batches_in_epoch=1000,
-#                       verbose=True):
-#     loss_track = []
-#     try:
-#         for batch in range(max_batches+1):
-#             batch_data = next(batches)
-#             fd = model.make_train_inputs(batch_data, batch_data)
-#             _, l = session.run([model.train_op, model.loss], fd)
-#             loss_track.append(l)
-
-#             if verbose:
-#                 if batch == 0 or batch % batches_in_epoch == 0:
-#                     print('batch {}'.format(batch))
-#                     print('  minibatch loss: {}'.format(session.run(model.loss, fd)))
-#                     for i, (e_in, dt_pred) in enumerate(zip(
-#                             fd[model.encoder_inputs].T,
-#                             session.run(model.decoder_prediction_train, fd).T
-#                         )):
-#                         print('  sample {}:'.format(i + 1))
-#                         print('    enc input           > {}'.format(e_in))
-#                         print('    dec train predicted > {}'.format(dt_pred))
-#                         if i >= 2:
-#                             break
-#                     print()
-#     except KeyboardInterrupt:
-#         print('training interrupted')
-
-#     return loss_track
-
-
-def train_on_copy_task(session, model,
-                       length_from=3, length_to=8,
-                       vocab_lower=2, vocab_upper=10,
-                       batch_size=100,
-                       max_batches=5000,
-                       batches_in_epoch=1000,
-                       verbose=True):
-
-    batches = helpers.random_sequences(length_from=length_from, length_to=length_to,
-                                       vocab_lower=vocab_lower, vocab_upper=vocab_upper,
-                                       batch_size=batch_size)
-    loss_track = []
-    try:
-        for batch in range(max_batches+1):
-            batch_data = next(batches)
-            fd = model.make_train_inputs(batch_data, batch_data)
-            _, l = session.run([model.train_op, model.loss], fd)
-            loss_track.append(l)
-
-            if verbose:
-                if batch == 0 or batch % batches_in_epoch == 0:
-                    print('batch {}'.format(batch))
-                    print('  minibatch loss: {}'.format(session.run(model.loss, fd)))
-                    for i, (e_in, dt_pred) in enumerate(zip(
-                            fd[model.encoder_inputs].T,
-                            session.run(model.decoder_prediction_train, fd).T
-                        )):
-                        print('  sample {}:'.format(i + 1))
-                        print('    enc input           > {}'.format(e_in))
-                        print('    dec train predicted > {}'.format(dt_pred))
-                        if i >= 2:
-                            break
-                    print()
-    except KeyboardInterrupt:
-        print('training interrupted')
-
-    return loss_track
 

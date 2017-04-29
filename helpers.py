@@ -1,10 +1,14 @@
 import numpy as np
+import random
+import codecs
+
+random.seed(1)
 
 def batch(inputs, max_sequence_length=None):
-    """
+    """    
     Args:
         inputs:
-            list of sentences (integer lists)
+            list of sentences in the current batch (integer lists)
         max_sequence_length:
             integer specifying how large should `max_time` dimension be.
             If None, maximum sequence length would be used
@@ -36,25 +40,54 @@ def batch(inputs, max_sequence_length=None):
     return inputs_time_major, sequence_lengths
 
 
-def random_sequences(length_from, length_to,
-                     vocab_lower, vocab_upper,
-                     batch_size):
-    """ Generates batches of random integer sequences,
-        sequence length in [length_from, length_to],
-        vocabulary in [vocab_lower, vocab_upper]
-    """
-    if length_from > length_to:
-            raise ValueError('length_from > length_to')
+class DataManager:
+    def __init__(self, source_file, target_file, vocab_file, batch_size):
+        self.num2char = {0: "PAD", 1: "EOS"}
+        self.char2num = {}
+        with codecs.open(vocab_file, encoding='utf-8') as f:
+            count = 1
+            for line in f:
+                count += 1
+                ch = line[0]
+                self.num2char[count] = ch
+                self.char2num[ch] = count
 
-    def random_length():
-        if length_from == length_to:
-            return length_from
-        return np.random.randint(length_from, length_to + 1)
+        with codecs.open(source_file, encoding='utf-8') as f:
+            lines = f.readlines()
+        source_seqs = [self.num_encode("".join(line.strip().split())) for line in lines]
+
+        with codecs.open(target_file, encoding='utf-8') as f:
+            lines = f.readlines()
+        dest_seqs = [self.num_encode("".join(line.strip().split())) for line in lines]
+
+        self.data = list(zip(source_seqs, dest_seqs))
+        #  truncate to make sure every batch has batch_size entries
+        self.data = self.data[:len(self.data) - len(self.data) % batch_size]
+        assert len(self.data) % batch_size == 0
+        self.batch_size = batch_size
+        self.iter = self._make_random_iter()
+
+    def next_batch(self):
+        try:
+            idxs = next(self.iter)
+        except StopIteration:
+            self.iter = self._make_random_iter()
+            idxs = next(self.iter)
+            
+        X, Y = zip(*[self.data[i] for i in idxs])
+        X = np.array(X).T
+        Y = np.array(Y).T
+        return X, Y
+
+    def _make_random_iter(self):
+        n = len(self.data)
+        shuffled_indexes = np.array(range(n))
+        random.shuffle(shuffled_indexes)
+        batch_indexes = [shuffled_indexes[i:i + self.batch_size] for i in range(0, n, self.batch_size)]
+        return iter(batch_indexes)
+
+    def num_decode(self, num_seq):
+        return " ".join([self.num2char[k] for k in num_seq])
     
-    while True:
-        yield [
-            np.random.randint(low=vocab_lower,
-                              high=vocab_upper,
-                              size=random_length()).tolist()
-            for _ in range(batch_size)
-        ]
+    def num_encode(self, char_seq):
+        return [self.char2num[ch] for ch in char_seq]
