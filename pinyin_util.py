@@ -1,8 +1,11 @@
 import codecs
 
+import os
 
+cur_path = os.path.dirname(os.path.abspath(__file__))
 # extracts valid full pinyins
-with codecs.open("data/valid_pinyins.txt", encoding='utf-8') as f:
+full_path = cur_path + "/data/valid_pinyins.txt"
+with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 valid_pinyins = set([line.strip() for line in lines])
 
@@ -14,7 +17,9 @@ full_pinyin_candidates = {}
 pinyin_prefix_candidates = {}
 
 # constructs candidate map
-with codecs.open("data/pinyin_char_dictionary.txt", encoding='utf-8') as f:
+
+full_path = cur_path + "/data/pinyin_char_dictionary.txt"
+with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 for line in [line.strip() for line in lines]:
     tokens = line.split("=")
@@ -81,6 +86,11 @@ def segment_input(pinyin_input, allow_invalid_single=True):
     # print(tokens)
     return tokens
 
+def get_all_candidates_chars():
+    res = set()
+    for chars in full_pinyin_candidates.values():
+        res = res.union(set(chars))
+    return res
 
 if __name__ == "__main__":
     # tests
@@ -95,4 +105,8 @@ if __name__ == "__main__":
     
     assert next_syllable("nihaoa") == "ni"
 
+    assert set(get_pinyin_candidates("diu")) == set(["铥","丢","銩","丟","颩"])
+    assert set(["铥","丢","銩","丟","颩"]).issubset(set(get_pinyin_candidates("d")))
+    assert not set(["丢"]).issubset(set(get_pinyin_candidates("di")))
     assert set(get_pinyin_candidates("a")) == set(["呵","吖","錒","啊","阿","嗄","锕","腌"])
+    assert get_pinyin_candidates("u") is None

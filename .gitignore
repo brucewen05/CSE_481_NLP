@@ -1,5 +1,11 @@
 /data/*.json
 /data/*.db3
+/data/*.data
+/data/weibo.txt
+/data/train/*
+/data/test/*
+/data/dev/*
 __pycache__/
 *~
-model/*_model
+model/
+*.swp
