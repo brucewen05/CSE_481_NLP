@@ -27,7 +27,6 @@ def beam_search(pinyin_syllables, predict_fn, top_k, beam_width):
         return d
 
     n = len(pinyin_syllables)
-
     # one list of dict(chars, log_prob) per length
     phrase_prob = [{} for i in range(n + 1)]
     phrase_prob[0][""] = 0.

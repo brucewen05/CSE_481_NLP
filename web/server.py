@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, json
 
 import sys
 sys.path.append("..")
@@ -19,12 +19,20 @@ def tokenize():
 
 @app.route('/predict/', methods=['GET'])
 def getPrediction():
+    # need to convert pinyin-tokens to array, but prev-chars is fine
+    # since it is a string already
     print("prev_context:-------------", request.args.get('prev-chars'))
     print("pinyin_tokens:---------", request.args.get('pinyin-tokens'))
     predicted_result = bs.ngram_beam_search(request.args.get('prev-chars'), 
-                                            request.args.get('pinyin-tokens'))
-    ret_data = {"value": predicted_result }
+                                            json.loads(request.args.get('pinyin-tokens')))
+    ret_data = {"value": sort_and_merge_predictions(predicted_result) }
     return jsonify(ret_data)
+
+def sort_and_merge_predictions(predictions_list, max_items=9):
+    flat_list = [item for sublist in predictions_list for item in sublist]
+    #print(flat_list)
+    ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
+    return [x[0] for x in ranked]
  
 if __name__ == '__main__':
     app.run(port=8080, debug=True)
