@@ -1,8 +1,5 @@
 from flask import Flask, jsonify, render_template, request, json
 
-# import sys
-# sys.path.append("..")
-
 import pinyin_util as pu
 import beam_search as bs
 

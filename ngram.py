@@ -8,10 +8,6 @@ from random import shuffle
 
 from sys import argv, stdin, exit
 
-# import os
-
-# cur_path = os.path.dirname(os.path.abspath(__file__))
-
 """
 To train a model, do `python3 -t training_filename`
 To load an existing model, do `python3 -l model_file`
