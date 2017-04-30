@@ -1,6 +1,5 @@
 'use strict';
 
-var predictions = []
 /*
     Takes in whatever is currently in user input area(most likely have the 
     form of prev_chars : curr_pinyin), and split it into two parts:
@@ -106,6 +105,10 @@ $("#raw-input").on("keyup", function(e) {
                     // second ajax call to get the predicted result
                     console.log("token data:", token_data.value)
                     console.log("prev_chars:", split_result.prev_chars)
+                    if (split_result.prev_chars.length == 0) {
+                        console.log("prev chars is empty!");
+                        split_result.prev_chars = "^"
+                    }
                     $.ajax({
                         type: "GET",
                         url: SCRIPT_ROOT + "/predict/",
@@ -124,27 +127,4 @@ $("#raw-input").on("keyup", function(e) {
             }
         }); 
     }
-});
-
-$("#test").on("click", function(e){
-    console.log(SCRIPT_ROOT + "/predict/");
-
-    e.preventDefault();
-    $.ajax({
-            type: "GET",
-            url: SCRIPT_ROOT + "/predict/",
-            contentType: "application/json; charset=utf-8",
-            data: { raw: $("#raw-input").val() },
-            success: function(data) {
-                if (data.value.length > 0) {
-                    var result = data.value[0]
-
-                    for (var i = 1; i < data.value.length; i++) {
-                        result = result + "\'" + data.value[i]
-                    }
-                }
-                console.log(result);
-                $('#tokenized-pinyin').text(result);
-            }
-        }); 
 });
