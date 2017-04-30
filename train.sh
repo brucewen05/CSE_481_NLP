@@ -32,7 +32,7 @@ mkdir -p $model_dir
 #echo "$TRAIN_STEPS"
 #echo "$model_dir"
 
-python3 ${HOME}/notebooks/seq2seq/bin/train.py \
+python3 seq2seq/bin/train.py \
 	--config_paths="
       ./config_files/sms_small.yml,
       ./config_files/train_seq2seq.yml" \

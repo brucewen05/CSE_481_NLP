@@ -15,20 +15,39 @@ def predict(config):
     else:
         raise NotImplementedError()
 
-    testset = load_data(config.test_data_dir)
+    source = load_data(config.test_data_source)
+    target = load_data(config.test_data_target)
     predictions = []
-    for data in testset:
-        (context, pinyin, label) = data
-        prediction = model_func(context, pu.segment_with_hint(metric.normalize_text(pinyin)))
+    index = 0
+    for data in source:
+        if index % 1000 == 0:
+            print(index)
+        index += 1
+        data = data.split('|')
+        (context, pinyin) = data
+        pinyin = pu.segment_with_hint(metric.normalize_text(pinyin))
+        prediction = model_func(context.strip(), pinyin)
         predictions.append(prediction)
-    pprint.pprint(metric.evaluate(testset, predictions, config.k))
+    pprint.pprint(metric.evaluate(target, predictions, config.k))
 
 
-def load_data(filename):
+def load_json_data(filename):
     try:
         with open(filename, 'r') as f:
             data = json.load(f)
             return data
+    except IOError:
+        usage()
+        print('IO error')
+        sys.exit(2)
+
+def load_data(filename):
+    data = []
+    try:
+        with open(filename, 'r', encoding="utf8") as f:
+            for line in f:
+                data.append(line)
+        return data
     except IOError:
         usage()
         print('IO error')
@@ -40,7 +59,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_dir', default=os.path.join('data', 'data_lcmc_clean.sample'))
+    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_large.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_large.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')
