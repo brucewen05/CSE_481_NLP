@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.contrib.rnn import LSTMCell, GRUCell, MultiRNNCell
+from tensorflow.contrib.rnn import LSTMCell, GRUCell, MultiRNNCell, DropoutWrapper
 
 from model_seq2seq import Seq2SeqModel
 import pandas as pd
@@ -55,8 +55,8 @@ def train_on_task(session, model, source_file, target_file, vocab_file,
 
 with tf.Session() as session:
 
-    source_file = "data/train/sms_large.source"
-    target_file = "data/train/sms_large.target"
+    train_source_file = "data/train/sms_large.source"
+    train_target_file = "data/train/sms_large.target"
     vocab_file = "data/vocab/sms"
 
     with codecs.open(vocab_file, encoding='utf-8') as f:
@@ -65,15 +65,21 @@ with tf.Session() as session:
 
     # with bidirectional encoder, decoder state size should be
     # 2x encoder state size
-    # TODO: Add dropout
-    model = Seq2SeqModel(encoder_cell=MultiRNNCell([GRUCell(256), GRUCell(256)]),
-                         decoder_cell=MultiRNNCell([GRUCell(256), GRUCell(256)]), 
+    num_layers = 2
+    encoder_cell = MultiRNNCell([
+						DropoutWrapper(GRUCell(256), output_keep_prob=0.7)
+						for _ in range(num_layers)])
+    decoder_cell = MultiRNNCell([
+                         	DropoutWrapper(GRUCell(256), output_keep_prob=0.7)
+                         	for _ in range(num_layers)])
+
+    model = Seq2SeqModel(encoder_cell=encoder_cell,
+                         decoder_cell=decoder_cell, 
                          vocab_size=vocab_size,
                          embedding_size=256,
-                         attention=True,
-                         bidirectional=True,
+                         bidirectional=False,
                          debug=False)
 
     session.run(tf.global_variables_initializer())
 
-    train_on_task(session, model, source_file, target_file, vocab_file)
+    train_on_task(session, model, train_source_file, train_target_file, vocab_file)
