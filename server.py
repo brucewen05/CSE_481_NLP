@@ -1,12 +1,9 @@
 from flask import Flask, jsonify, render_template, request, json
 
-import sys
-sys.path.append("..")
-
 import pinyin_util as pu
 import beam_search as bs
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = "web/static", template_folder = "web/templates")
 app.config['JSON_AS_ASCII'] = False
 
 @app.route('/')
