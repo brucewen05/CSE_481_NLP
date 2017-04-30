@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="author" content="Team Very Natrual">
+   <title></title>
+   <script type=text/javascript>
+     var SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+   </script>
+
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+      <div class="row" id="tokenized-pinyin"></div>
+      <div class="row">
+        <div class="col s12">
+          <div class="row">
+            <div class="input-field col s12">
+              <input type="text" id="raw-input">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="collection" style="display:none" id="prediction-container"></div>
+  </div>
+
+   <script
+    src="https://code.jquery.com/jquery-3.2.1.js"
+    integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+    crossorigin="anonymous"></script>
+   <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
+
+

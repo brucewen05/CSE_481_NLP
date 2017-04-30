@@ -7,6 +7,10 @@ from collections import Counter
 
 from sys import argv, stdin, exit
 
+import os
+
+cur_path = os.path.dirname(os.path.abspath(__file__))
+
 """
 To train a model, do `python3 -t training_filename`
 To load an existing model, do `python3 -l model_file`
@@ -90,9 +94,9 @@ if __name__ == "__main__":
 
     training_result = None
     if argv[1] == "-t":
-        training_result = train(argv[2], "model/ngrams_model")
+        training_result = train(argv[2], cur_path + "/model/ngrams_model")
     elif argv[1] == "-l":
-        training_result = load_model(argv[2])
+        training_result = load_model(cur_path + "/" + argv[2])
     else:
         print("Illegal flag", argv[1])
         exit(1)
@@ -113,4 +117,4 @@ if __name__ == "__main__":
         word_prev = suggestion[int(selection)]
         print(word_prev)
 else:
-    training_result = load_model("model/ngrams_model")
+    training_result = load_model(cur_path + "/model/ngrams_model")
