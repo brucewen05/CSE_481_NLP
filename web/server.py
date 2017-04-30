@@ -34,4 +34,4 @@ def sort_and_merge_predictions(predictions_list, max_items=9):
     return [x[0] for x in ranked]
  
 if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+    app.run(host='0.0.0.0', port=7000, debug=True)

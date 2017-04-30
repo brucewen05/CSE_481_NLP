@@ -1,0 +1,100 @@
+Prediction followed by Target @ Step 15002
+====================================================================================================
+个 的 了 SEQUENCE_END
+起 来 啦 SEQUENCE_END
+
+是 我 SEQUENCE_END
+是 周 SEQUENCE_END
+
+的 人 SEQUENCE_END
+的 工 SEQUENCE_END
+
+不 的 了 SEQUENCE_END
+别 打 了 SEQUENCE_END
+
+在 SEQUENCE_END
+再 SEQUENCE_END
+
+你 时 SEQUENCE_END
+你 现 SEQUENCE_END
+
+下 给 一 话 SEQUENCE_END
+下 负 责 人 SEQUENCE_END
+
+我 SEQUENCE_END
+袜 SEQUENCE_END
+
+你 了 SEQUENCE_END
+哪 里 SEQUENCE_END
+
+是 有 一 SEQUENCE_END
+所 以 七 SEQUENCE_END
+
+是 SEQUENCE_END
+上 SEQUENCE_END
+
+一 我 SEQUENCE_END
+一 名 SEQUENCE_END
+
+就 个 SEQUENCE_END
+就 起 SEQUENCE_END
+
+个 好 SEQUENCE_END
+个 表 SEQUENCE_END
+
+有 SEQUENCE_END
+又 SEQUENCE_END
+
+我 不 SEQUENCE_END
+我 不 SEQUENCE_END
+
+在 SEQUENCE_END
+支 SEQUENCE_END
+
+下 SEQUENCE_END
+学 SEQUENCE_END
+
+的 SEQUENCE_END
+的 SEQUENCE_END
+
+下 的 SEQUENCE_END
+选 出 SEQUENCE_END
+
+我 SEQUENCE_END
+物 SEQUENCE_END
+
+我 的 了 SEQUENCE_END
+我 到 了 SEQUENCE_END
+
+是 SEQUENCE_END
+视 SEQUENCE_END
+
+下 的 SEQUENCE_END
+鲜 的 SEQUENCE_END
+
+个 的 的 SEQUENCE_END
+公 室 的 SEQUENCE_END
+
+不 福 SEQUENCE_END
+板 群 SEQUENCE_END
+
+好 SEQUENCE_END
+话 SEQUENCE_END
+
+不 SEQUENCE_END
+表 SEQUENCE_END
+
+吧 SEQUENCE_END
+吧 SEQUENCE_END
+
+不 个 电 SEQUENCE_END
+半 来 小 SEQUENCE_END
+
+的 福 SEQUENCE_END
+诞 你 SEQUENCE_END
+
+下 SEQUENCE_END
+下 SEQUENCE_END
+
+====================================================================================================
+

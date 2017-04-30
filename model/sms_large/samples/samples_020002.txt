@@ -1,0 +1,100 @@
+Prediction followed by Target @ Step 20002
+====================================================================================================
+我 一 SEQUENCE_END
+午 一 SEQUENCE_END
+
+么 候 候 候 SEQUENCE_END
+么 还 不 回 SEQUENCE_END
+
+没 个 时 给 SEQUENCE_END
+们 认 识 认 SEQUENCE_END
+
+吃 去 回 你 SEQUENCE_END
+常 感 谢 你 SEQUENCE_END
+
+来 好 SEQUENCE_END
+履 行 SEQUENCE_END
+
+点 你 SEQUENCE_END
+得 你 SEQUENCE_END
+
+上 到 SEQUENCE_END
+少 点 SEQUENCE_END
+
+天 有 有 道 的
+天 不 下 雨 的
+
+不 SEQUENCE_END
+别 SEQUENCE_END
+
+下 的 SEQUENCE_END
+现 的 SEQUENCE_END
+
+天 在 有 的 SEQUENCE_END
+天 要 上 课 SEQUENCE_END
+
+我 SEQUENCE_END
+午 SEQUENCE_END
+
+上 SEQUENCE_END
+上 SEQUENCE_END
+
+回 好 SEQUENCE_END
+好 好 SEQUENCE_END
+
+天 SEQUENCE_END
+挺 SEQUENCE_END
+
+人 是 是 我 我
+人 你 就 跟 我
+
+了 SEQUENCE_END
+了 SEQUENCE_END
+
+一 看 看 SEQUENCE_END
+一 起 吃 SEQUENCE_END
+
+在 SEQUENCE_END
+周 SEQUENCE_END
+
+不 好 SEQUENCE_END
+班 好 SEQUENCE_END
+
+在 什 上 去 SEQUENCE_END
+怎 么 还 不 SEQUENCE_END
+
+好 的 SEQUENCE_END
+还 得 SEQUENCE_END
+
+没 下 SEQUENCE_END
+面 写 SEQUENCE_END
+
+想 在 天 在 下
+先 让 他 们 认
+
+没 一 一 SEQUENCE_END
+模 范 一 SEQUENCE_END
+
+看 到 SEQUENCE_END
+看 到 SEQUENCE_END
+
+家 的 到 SEQUENCE_END
+记 得 带 SEQUENCE_END
+
+今 SEQUENCE_END
+讲 SEQUENCE_END
+
+一 SEQUENCE_END
+要 SEQUENCE_END
+
+天 我 有 一 SEQUENCE_END
+替 我 顶 会 SEQUENCE_END
+
+不 我 自 SEQUENCE_END
+不 我 就 SEQUENCE_END
+
+有 一 也 SEQUENCE_END
+要 熬 夜 SEQUENCE_END
+
+====================================================================================================
+

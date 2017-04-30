@@ -1,0 +1,100 @@
+Prediction followed by Target @ Step 50002
+====================================================================================================
+下 了 哪 SEQUENCE_END
+下 了 班 SEQUENCE_END
+
+没 上 班 好 好
+没 上 班 好 好
+
+我 就 淮 备 SEQUENCE_END
+我 就 淮 备 SEQUENCE_END
+
+都 不 小 的 SEQUENCE_END
+都 不 晓 得 SEQUENCE_END
+
+多 就 起 来 SEQUENCE_END
+多 就 起 来 SEQUENCE_END
+
+你 上 一 SEQUENCE_END
+你 上 一 SEQUENCE_END
+
+班 来 下 料 找
+半 来 小 区 找
+
+下 想 期 SEQUENCE_END
+下 星 期 SEQUENCE_END
+
+天 天 SEQUENCE_END
+天 天 SEQUENCE_END
+
+是 年 送 因 年
+示 你 上 一 年
+
+不 能 天 电 话
+不 能 听 点 话
+
+你 现 在 哪 里
+你 现 在 哪 里
+
+觉 得 问 们 SEQUENCE_END
+觉 得 你 们 SEQUENCE_END
+
+想 我 的 吃 年
+现 在 都 吃 完
+
+我 看 到 SEQUENCE_END
+我 看 到 SEQUENCE_END
+
+表 时 送 SEQUENCE_END
+礼 物 送 SEQUENCE_END
+
+想 我 学 包 SEQUENCE_END
+向 我 借 钱 SEQUENCE_END
+
+以 点 点 快 就
+以 七 点 多 就
+
+个 都 不 过 的
+个 都 不 晓 得
+
+其 天 幸 的 SEQUENCE_END
+求 填 写 的 SEQUENCE_END
+
+心 是 是 SEQUENCE_END
+形 式 是 SEQUENCE_END
+
+天 还 的 SEQUENCE_END
+天 还 得 SEQUENCE_END
+
+你 给 我 帮 里
+你 给 我 把 礼
+
+海 情 况 一 SEQUENCE_END
+行 情 况 及 SEQUENCE_END
+
+见 张 园 上 SEQUENCE_END
+将 展 开 上 SEQUENCE_END
+
+你 这 个 都 不
+你 这 个 都 不
+
+太 上 小 气 SEQUENCE_END
+台 上 向 其 SEQUENCE_END
+
+年 上 因 年 的
+你 上 一 年 的
+
+我 就 淮 备 一
+我 就 淮 备 一
+
+就 起 来 啦 SEQUENCE_END
+就 起 来 啦 SEQUENCE_END
+
+个 表 个 SEQUENCE_END
+个 表 格 SEQUENCE_END
+
+到 去 买 到 门
+到 车 塞 到 蛮
+
+====================================================================================================
+
