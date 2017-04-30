@@ -1,8 +1,12 @@
 import codecs
 
+import os
 
+cur_path = os.path.dirname(os.path.abspath(__file__))
 # extracts valid full pinyins
-with codecs.open("data/valid_pinyins.txt", encoding='utf-8') as f:
+full_path = cur_path + "/data/valid_pinyins.txt"
+print(full_path)
+with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 valid_pinyins = set([line.strip() for line in lines])
 
@@ -14,7 +18,10 @@ full_pinyin_candidates = {}
 pinyin_prefix_candidates = {}
 
 # constructs candidate map
-with codecs.open("data/pinyin_char_dictionary.txt", encoding='utf-8') as f:
+
+full_path = cur_path + "/data/pinyin_char_dictionary.txt"
+print(full_path)
+with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 for line in [line.strip() for line in lines]:
     tokens = line.split("=")
