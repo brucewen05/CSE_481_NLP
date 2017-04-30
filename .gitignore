@@ -5,6 +5,7 @@
 /data/train/*
 /data/test/*
 /data/dev/*
+/data/vocab/*
 __pycache__/
 *~
 model/
