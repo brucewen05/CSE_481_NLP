@@ -100,7 +100,7 @@ sess = tf.train.MonitoredSession(
   session_creator=session_creator,
   hooks=[DecodeOnce({}, callback_func=_save_prediction_to_dict)])
 
-# The main API exposed
+# The main APIs exposed
 def query_once(source_tokens):
   tf.reset_default_graph()
   source_tokens = source_tokens.split() + ["SEQUENCE_END"]
@@ -110,8 +110,13 @@ def query_once(source_tokens):
     })
   return prediction_dict.pop(_tokens_to_str(source_tokens))
 
+def query(context, pinyins):
+  context = " ".join(context)
+  pinyins = " ".join(list("".join(pinyins)))
+  return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":
+  tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
   samples = [
     u"^ 下 班 | h o u y i q i c h i f a n",
@@ -122,4 +127,6 @@ if __name__ == "__main__":
     print(sample_in)
     print(query_once(sample_in))
     print()
+
+  # print(query([u"^", u"你"], ["men", "hao"]))
   
