@@ -50,7 +50,7 @@ def normalize_text(s):
     return white_space_fix(remove_punc(lower(s)))
 
 
-def evaluate(dataset, predictions, k):
+def evaluate(target, predictions, k):
     scores = {}
     metric_fn = [in_top_1, in_top_10]
 
@@ -60,19 +60,26 @@ def evaluate(dataset, predictions, k):
         metric_fn.append(in_top_k_metric)
 
     lens = {}
-    for data, prediction in zip(dataset, predictions):
-        ground_truth = normalize_text(data[2])
-        length = data[1].count(' ')  # len of input. TODO: better way to get len of input
+    for data, prediction in zip(target, predictions):
+        length = len(data.split()) - 1  # len of input. TODO: better way to get len of input
+        ground_truth = normalize_text(data)
         try:
             lens[length] += 1
         except KeyError:
             lens[length] = 1
-        prediction = [p[0] for p in prediction[length]]
-        for fn in metric_fn:
-            try:
-                scores[fn.__name__ + '_len=' + str(length)] += fn(prediction, ground_truth)
-            except KeyError:
-                scores[fn.__name__ + '_len=' + str(length)] = fn(prediction, ground_truth)
+        try:
+            prediction = [p[0] for p in prediction[length]]
+            for fn in metric_fn:
+                try:
+                    scores[fn.__name__ + '_len=' + str(length)] += fn(prediction, ground_truth)
+                except KeyError:
+                    scores[fn.__name__ + '_len=' + str(length)] = fn(prediction, ground_truth)
+        except IndexError:
+            for fn in metric_fn:
+                try:
+                    scores[fn.__name__ + '_len=' + str(length)] += 0
+                except KeyError:
+                    scores[fn.__name__ + '_len=' + str(length)] = 0
     scores = {fn: round(100.0 * score / lens[int(fn.split('=')[-1])], 4) for fn, score in scores.items()}
     return scores
 
