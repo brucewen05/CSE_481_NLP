@@ -8,4 +8,5 @@
 /data/vocab/*
 __pycache__/
 *~
+ model/
 *.swp
