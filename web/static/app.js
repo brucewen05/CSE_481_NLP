@@ -20,17 +20,64 @@ function splitRawInput(rawInput) {
     return {prev_chars : prev_chars, curr_pinyin: curr_pinyin};
 }
 
+function displayPredictions(prediction_list) {
+    var container = $("#prediction-container");
+    container.text("")
+
+    console.log("length is:", prediction_list.length)
+
+    for (var i = 0; i < prediction_list.length; i++) {
+        console.log(prediction_list[i])
+        // this adds an element as well as adding an event
+        // listener such that when this element is click,
+        // the handleSelect function is called.
+        $("<a class=\"collection-item\" data-index=\"" + i + 
+            "\"><span class=\"badge\">" + prediction_list[i] + 
+            "</span>" + (i + 1) + "</a>").on("click", 
+            function(){
+                handleSelect($(this).data("index"));
+            }).appendTo(container)
+    }
+
+    container.show();
+}
+
+function handleSelect(num) {
+    var container = $("#prediction-container");
+    console.log(num)
+    if (container.is(":visible")) {
+        var element_clicked = container.find("[data-index='" + num + "']")
+        console.log(element_clicked.children().text());
+
+        var input_area = $("#raw-input");
+        var token_area = $("#tokenized-pinyin");
+        var split_result = splitRawInput(input_area.val());
+        var updated_input = split_result.prev_chars + element_clicked.children().text();
+        input_area.val(updated_input);
+        token_area.text("");
+        container.hide();
+    }
+}
+
 $("#raw-input").on("keyup", function(e) {
 
     var keypressed = e.key;
+    var prediction_container = $("#prediction-container");
     console.log(keypressed);
     // selection case, might need to change the condition
     // logic based on whether the selection list is shown
     // or hidden later on
     var raw_input = $("#raw-input").val();
     if (keypressed >= "1" && keypressed <= "9") {
-        // delete the number input      
-        $("#raw-input").val(curr_input.substring(0, curr_input.length - 1))
+        // user want to select a choice from the prediction list
+        if (prediction_container.is(":visible")) {
+            // delete the number input
+            var curr_input = $("#raw-input").val();
+            $("#raw-input").val(curr_input.substring(0, curr_input.length - 1));
+            handleSelect(parseInt(keypressed) - 1);
+        }
+        // otherwise, let the user type a number!!
+        
     } else {
         // either alphabetic case or other key press case
         // so need to split the raw input and call prediction
@@ -67,7 +114,8 @@ $("#raw-input").on("keyup", function(e) {
                                 "pinyin-tokens":  JSON.stringify(token_data.value) },
                         success: function(predict_data) {              
                             console.log(predict_data.value);
-                            $('#prediction-container').text(predict_data.value);
+                            displayPredictions(predict_data.value)
+                            //$('#prediction-container').text(predict_data.value);
                         }
                     });
 

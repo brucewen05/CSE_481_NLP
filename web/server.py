@@ -7,14 +7,15 @@ import pinyin_util as pu
 import beam_search as bs
 
 app = Flask(__name__)
- 
+app.config['JSON_AS_ASCII'] = False
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/tokenize/', methods=['GET'])
 def tokenize():
-    ret_data = {"value": pu.segment_with_hint(request.args.get('raw'))}
+    ret_data = { "value": pu.segment_with_hint(request.args.get('raw')) }
     return jsonify(ret_data)
 
 @app.route('/predict/', methods=['GET'])
@@ -23,7 +24,7 @@ def getPrediction():
     # since it is a string already
     predicted_result = bs.ngram_beam_search(request.args.get('prev-chars'), 
                                             json.loads(request.args.get('pinyin-tokens')))
-    ret_data = {"value": sort_and_merge_predictions(predicted_result) }
+    ret_data = { "value": sort_and_merge_predictions(predicted_result) }
     return jsonify(ret_data)
 
 def sort_and_merge_predictions(predictions_list, max_items=9):

@@ -19,7 +19,6 @@ pinyin_prefix_candidates = {}
 # constructs candidate map
 
 full_path = cur_path + "/data/pinyin_char_dictionary.txt"
-print(full_path)
 with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 for line in [line.strip() for line in lines]:
