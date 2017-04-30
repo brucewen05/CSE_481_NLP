@@ -21,8 +21,6 @@ def tokenize():
 def getPrediction():
     # need to convert pinyin-tokens to array, but prev-chars is fine
     # since it is a string already
-    print("prev_context:-------------", request.args.get('prev-chars'))
-    print("pinyin_tokens:---------", request.args.get('pinyin-tokens'))
     predicted_result = bs.ngram_beam_search(request.args.get('prev-chars'), 
                                             json.loads(request.args.get('pinyin-tokens')))
     ret_data = {"value": sort_and_merge_predictions(predicted_result) }

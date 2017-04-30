@@ -3,8 +3,6 @@ import heapq
 import ngram as ng
 
 def ngram_beam_search(prev_context, pinyin_syllables, top_k=10, beam_width=100):
-    print("prev_context:-------------", prev_context)
-    print("pinyin_syllables:---------", pinyin_syllables)
     def predict_fn_ngram(prev_words, cur_pinyin):
         if len(prev_words) == 0:
             last_word = ng.START if prev_context == "" else prev_context[-1]

@@ -5,7 +5,6 @@ import os
 cur_path = os.path.dirname(os.path.abspath(__file__))
 # extracts valid full pinyins
 full_path = cur_path + "/data/valid_pinyins.txt"
-print(full_path)
 with codecs.open(full_path, encoding='utf-8') as f:
     lines = f.readlines()
 valid_pinyins = set([line.strip() for line in lines])
