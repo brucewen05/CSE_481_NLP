@@ -114,6 +114,7 @@ def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
+  print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":
