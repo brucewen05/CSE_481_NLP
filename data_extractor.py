@@ -3,12 +3,19 @@ import json
 import codecs
 import pickle
 import operator
+import random
 import lcmc_queries as lcmc
 import pinyin_util as pu
 
 # total size of lines to read from txt file
 # used only for debugging purpose
 MAX_LINE_NUMBER = 3
+
+# probability to generate an abbreviation tuple
+GENERATE_ABBREVIATION_TUPLE_PROBABILITY = 0.5
+# probability to use abbreviation for a given
+# pinyin token
+GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.5
 
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
@@ -82,11 +89,58 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     triples.append((" ".join(context), " ".join(pinyins), " ".join(chars)))
                     if first_n is not None and len(triples) == first_n:
                         return triples
+                    if (random.random() < GENERATE_ABBREVIATION_TUPLE_PROBABILITY):
+                        # print("in generating abbreviation tuple case")
+                        abbreviation_pinyins = generate_abbreviation_noise(pinyins, GENERATE_ABBREVIATION_TOKEN_PROBABILITY)
+                        if (abbreviation_pinyins):
+                            triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
     print(len(triples))
     return triples
 
-def generate_abbrevation_noise(pinyins):
-    return 0
+def generate_abbreviation_noise(pinyins, prob):
+    """
+    make a noisy copy of the original pinyin tokens
+    such that each pinyin token has 'prob' probability
+    of being replaced by its abbreviation.
+
+    Note: This function guaranteens that when combining
+    all the tokens in the result array and then splitting
+    it again using segment_with_hint() function in pinyin_uitl.py,
+    the size of the array after splitting is the same as the original
+    'pinyins' array. 
+    i.e. the situation where the pinyins array is
+    ["tian", "an", "men"] and the result array is
+    ["t", "a", "m"] is not possible since when combining
+    "t" with "a", it forms a valid pinyin token "ta"; thus when
+    splitting the pinyin string "tam", it will be splitted into
+    ["ta", "m"], which is shorter than the original array.
+    """
+    results = []
+    for pinyin_token in pinyins:
+        abbreviation = pinyin_token[0:2]
+        if (abbreviation != "zh" 
+            and abbreviation != "ch" 
+            and abbreviation != "sh"):
+            abbreviation = pinyin_token[0]
+        results.append(abbreviation)
+
+    for i in range(0, len(results)):
+        if (random.random() > prob):
+            results[i] = pinyins[i]
+
+    # print("orignal array:", pinyins)
+    # print("abbreviation array:", results)
+    segment_results_result = pu.segment_with_hint("".join(results))
+    segment_original_result = pu.segment_with_hint("".join(pinyins))
+    
+    # print("segmentation result for noisy result:", segment_results_result)
+    # print("segmentation result for orignal array:", segment_original_result)
+    if (len(segment_results_result) == len(segment_original_result)):
+        print("returning result")
+        return results
+    else:
+        # print("returning None due to length inconsistency")
+        return None
 
 def generate_typo_noise(pinyins):
     return 0
