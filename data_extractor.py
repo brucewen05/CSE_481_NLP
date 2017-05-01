@@ -6,6 +6,10 @@ import operator
 import lcmc_queries as lcmc
 import pinyin_util as pu
 
+# total size of lines to read from txt file
+# used only for debugging purpose
+MAX_LINE_NUMBER = 3
+
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
@@ -26,13 +30,17 @@ def build_parallel_paragraphs_lcmc():
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
 
-def build_parallel_paragraphs_from_txt(filename):
+def build_parallel_paragraphs_from_txt(filename, debug = False):
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
 
     with codecs.open(filename, encoding='utf-8') as f:
         lines = f.readlines()
+
+    if (debug):
+        lines = lines[0:MAX_LINE_NUMBER]
+
     lines = [x.strip() for x in lines]
     lines = list(set(lines))
     
@@ -67,6 +75,7 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
+                print(pinyins)
                 chars = pp[0][cursor:input_window_end]
 
                 if (len(chars) > 0):
@@ -75,6 +84,12 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                         return triples
     print(len(triples))
     return triples
+
+def generate_abbrevation_noise(pinyins):
+    return 0
+
+def generate_typo_noise(pinyins):
+    return 0
 
 def gen_vocab(raw_file, filename):
     with codecs.open(raw_file, encoding='utf-8') as f:
@@ -125,8 +140,13 @@ if __name__ == "__main__":
     gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
 
     print("Extracting sms data...")
-    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)
-    gen_source_target_files(data, "sms_large")
+    # need to get rid of the debug flag when extracting the real data
+    data = extract_triples(
+        build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = True), 
+        min_paragraph_len=4)
+    #gen_source_target_files(data, "sms_large")
+
+    print("Done extracting...")
     
     # with open('data/sms_clean.data', 'wb') as outfile:
         # pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
