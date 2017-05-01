@@ -104,8 +104,8 @@ def gen_vocab(raw_file, filename):
             c[token] = c[token] + 1
 
     with codecs.open(filename, 'w', encoding='utf-8') as fout:
-        for tup in sorted(c.items(), key=operator.itemgetter(1), reverse=True):
-            fout.write(tup[0] + "\t" + str(tup[1]) + "\n")
+        for k in sorted(c.keys()):
+            fout.write(k + "\t" + str(c[k]) + "\n")
 
 def gen_source_target_files(triples, filename):
     n = len(triples)
