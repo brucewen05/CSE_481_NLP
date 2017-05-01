@@ -76,7 +76,7 @@ $("#raw-input").on("keyup", function(e) {
             handleSelect(parseInt(keypressed) - 1);
         }
         // otherwise, let the user type a number!!
-        
+        // TODO:need to call predict here as well
     } else {
         // either alphabetic case or other key press case
         // so need to split the raw input and call prediction
@@ -105,11 +105,9 @@ $("#raw-input").on("keyup", function(e) {
                     // second ajax call to get the predicted result
                     console.log("token data:", token_data.value)
                     console.log("prev_chars:", split_result.prev_chars)
-                    if (split_result.prev_chars.length == 0) {
-                        console.log("prev chars is empty!");
-                        split_result.prev_chars = "^"
-                    }
-                    $.ajax({
+		    split_result.prev_chars = "^" + split_result.prev_chars;
+		    
+		    $.ajax({
                         type: "GET",
                         url: SCRIPT_ROOT + "/predict/",
                         contentType: "application/json; charset=utf-8",

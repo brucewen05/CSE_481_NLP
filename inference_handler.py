@@ -5,7 +5,6 @@ from seq2seq import tasks, models
 from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 
-
 class DecodeOnce(InferenceTask):
   '''
   Similar to tasks.DecodeText, but for one input only.
@@ -102,6 +101,7 @@ sess = tf.train.MonitoredSession(
 
 # The main APIs exposed
 def query_once(source_tokens):
+  print("received source tokens:", source_tokens)
   tf.reset_default_graph()
   source_tokens = source_tokens.split() + ["SEQUENCE_END"]
   sess.run([], {
@@ -111,7 +111,8 @@ def query_once(source_tokens):
   return prediction_dict.pop(_tokens_to_str(source_tokens))
 
 def query(context, pinyins):
-  context = " ".join(context)
+  # TODO: do not hard code window size here
+  context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
   return query_once(context + " | " + pinyins)
       
@@ -128,5 +129,5 @@ if __name__ == "__main__":
     print(query_once(sample_in))
     print()
 
-  # print(query([u"^", u"你"], ["men", "hao"]))
+  print(query([u"^", u"你"], ["men", "hao"]))
   

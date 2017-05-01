@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, request, json
 
 import pinyin_util as pu
 import beam_search as bs
+import inference_handler as ih
 
 app = Flask(__name__, static_folder = "web/static", template_folder = "web/templates")
 app.config['JSON_AS_ASCII'] = False
@@ -19,6 +20,7 @@ def tokenize():
 def getPrediction():
     # need to convert pinyin-tokens to array, but prev-chars is fine
     # since it is a string already
+    # TODO: figure out a way to swap model easily
     predicted_result = bs.ngram_beam_search(request.args.get('prev-chars'), 
                                             json.loads(request.args.get('pinyin-tokens')))
     ret_data = { "value": sort_and_merge_predictions(predicted_result) }

@@ -8,5 +8,5 @@
 /data/vocab/*
 __pycache__/
 *~
- model/
+model/
 *.swp
