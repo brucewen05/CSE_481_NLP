@@ -113,7 +113,7 @@ def query_once(source_tokens):
   result_string = ""
   for i in range(0, len(result_array)):
     if (result_array[i] != " "):
-      result += result_array[i]
+      result_string += result_array[i]
   
   return [result_string]
 
