@@ -82,7 +82,7 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
-                print(pinyins)
+                #print(pinyins)
                 chars = pp[0][cursor:input_window_end]
 
                 if (len(chars) > 0):
@@ -136,7 +136,7 @@ def generate_abbreviation_noise(pinyins, prob):
     # print("segmentation result for noisy result:", segment_results_result)
     # print("segmentation result for orignal array:", segment_original_result)
     if (len(segment_results_result) == len(segment_original_result)):
-        print("returning result")
+        #print("returning result")
         return results
     else:
         # print("returning None due to length inconsistency")
@@ -196,9 +196,9 @@ if __name__ == "__main__":
     print("Extracting sms data...")
     # need to get rid of the debug flag when extracting the real data
     data = extract_triples(
-        build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = True), 
+        build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = False), 
         min_paragraph_len=4)
-    #gen_source_target_files(data, "sms_large")
+    gen_source_target_files(data, "sms_large")
 
     print("Done extracting...")
     
