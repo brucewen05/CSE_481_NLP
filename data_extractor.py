@@ -7,6 +7,9 @@ import random
 import lcmc_queries as lcmc
 import pinyin_util as pu
 
+random.seed(1)
+
+
 # total size of lines to read from txt file
 # used only for debugging purpose
 MAX_LINE_NUMBER = 3
@@ -90,9 +93,8 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     if first_n is not None and len(triples) == first_n:
                         return triples
                     if (random.random() < GENERATE_ABBREVIATION_TUPLE_PROBABILITY):
-                        # print("in generating abbreviation tuple case")
                         abbreviation_pinyins = generate_abbreviation_noise(pinyins, GENERATE_ABBREVIATION_TOKEN_PROBABILITY)
-                        if (abbreviation_pinyins):
+                        if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
     print(len(triples))
     return triples
@@ -198,7 +200,7 @@ if __name__ == "__main__":
     data = extract_triples(
         build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = False), 
         min_paragraph_len=4)
-    gen_source_target_files(data, "sms_large")
+    gen_source_target_files(data, "sms_large_abbrs")
 
     print("Done extracting...")
     
