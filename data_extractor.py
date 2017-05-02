@@ -139,10 +139,12 @@ def generate_abbreviation_noise(pinyins, prob):
     # print("segmentation result for orignal array:", segment_original_result)
     if (len(segment_results_result) == len(segment_original_result)):
         #print("returning result")
-        return results
-    else:
-        # print("returning None due to length inconsistency")
-        return None
+        # to make sure the result is not the same as the original array
+        for i in range(0, len(results)):
+            if (pinyins[i] != results[i]):
+                return results
+    
+    return None
 
 def generate_typo_noise(pinyins):
     return 0
