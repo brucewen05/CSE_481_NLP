@@ -2,14 +2,14 @@
 0;95;0c
 if [ $# != 3 ]
 then
-    echo "${0} corpus_name corpus_size:small/large train_steps"
+    echo "${0} corpus_name config_yaml train_steps"
     exit 1
 fi
 
 
 # source the setup.sh using the passed-in arguments to this script
 source setup.sh
-model_dir="model/${1}_${2}"
+model_dir="model/${1}_`date +%m_%d`"
 
 if [ -d ${model_dir} ]
 then
@@ -34,7 +34,7 @@ mkdir -p $model_dir
 
 python3 seq2seq/bin/train.py \
 	--config_paths="
-      ./config_files/sms_small.yml,
+      ./config_files/$CONFIG_FILE, 
       ./config_files/train_seq2seq.yml" \
 	--model_params "
       vocab_source: $VOCAB_SOURCE

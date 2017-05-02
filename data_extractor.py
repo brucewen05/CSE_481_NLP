@@ -18,7 +18,7 @@ MAX_LINE_NUMBER = 3
 GENERATE_ABBREVIATION_TUPLE_PROBABILITY = 0.5
 # probability to use abbreviation for a given
 # pinyin token
-GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.5
+GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.8
 
 def print_and_log(s):
     print(s)
