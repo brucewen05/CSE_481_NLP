@@ -41,7 +41,7 @@ def print_predictions(predictions):
 
 
 
-selected_chars = ""
+selected_chars = "^"
 cur_predictions = dummy_list1
 
 print_predictions(cur_predictions)

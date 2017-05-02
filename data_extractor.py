@@ -3,8 +3,22 @@ import json
 import codecs
 import pickle
 import operator
+import random
 import lcmc_queries as lcmc
 import pinyin_util as pu
+
+random.seed(1)
+
+
+# total size of lines to read from txt file
+# used only for debugging purpose
+MAX_LINE_NUMBER = 3
+
+# probability to generate an abbreviation tuple
+GENERATE_ABBREVIATION_TUPLE_PROBABILITY = 0.5
+# probability to use abbreviation for a given
+# pinyin token
+GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.5
 
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
@@ -26,13 +40,17 @@ def build_parallel_paragraphs_lcmc():
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
 
-def build_parallel_paragraphs_from_txt(filename):
+def build_parallel_paragraphs_from_txt(filename, debug = False):
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
 
     with codecs.open(filename, encoding='utf-8') as f:
         lines = f.readlines()
+
+    if (debug):
+        lines = lines[0:MAX_LINE_NUMBER]
+
     lines = [x.strip() for x in lines]
     lines = list(set(lines))
     
@@ -67,14 +85,69 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
+                #print(pinyins)
                 chars = pp[0][cursor:input_window_end]
 
                 if (len(chars) > 0):
                     triples.append((" ".join(context), " ".join(pinyins), " ".join(chars)))
                     if first_n is not None and len(triples) == first_n:
                         return triples
+                    if (random.random() < GENERATE_ABBREVIATION_TUPLE_PROBABILITY):
+                        abbreviation_pinyins = generate_abbreviation_noise(pinyins, GENERATE_ABBREVIATION_TOKEN_PROBABILITY)
+                        if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
+                            triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
     print(len(triples))
     return triples
+
+def generate_abbreviation_noise(pinyins, prob):
+    """
+    make a noisy copy of the original pinyin tokens
+    such that each pinyin token has 'prob' probability
+    of being replaced by its abbreviation.
+
+    Note: This function guaranteens that when combining
+    all the tokens in the result array and then splitting
+    it again using segment_with_hint() function in pinyin_uitl.py,
+    the size of the array after splitting is the same as the original
+    'pinyins' array. 
+    i.e. the situation where the pinyins array is
+    ["tian", "an", "men"] and the result array is
+    ["t", "a", "m"] is not possible since when combining
+    "t" with "a", it forms a valid pinyin token "ta"; thus when
+    splitting the pinyin string "tam", it will be splitted into
+    ["ta", "m"], which is shorter than the original array.
+    """
+    results = []
+    for pinyin_token in pinyins:
+        abbreviation = pinyin_token[0:2]
+        if (abbreviation != "zh" 
+            and abbreviation != "ch" 
+            and abbreviation != "sh"):
+            abbreviation = pinyin_token[0]
+        results.append(abbreviation)
+
+    for i in range(0, len(results)):
+        if (random.random() > prob):
+            results[i] = pinyins[i]
+
+    # print("orignal array:", pinyins)
+    # print("abbreviation array:", results)
+    segment_results_result = pu.segment_with_hint("".join(results))
+    segment_original_result = pu.segment_with_hint("".join(pinyins))
+    
+    # print("segmentation result for noisy result:", segment_results_result)
+    # print("segmentation result for orignal array:", segment_original_result)
+    if (len(segment_results_result) == len(segment_original_result)):
+        #print("returning result")
+        # to make sure the result is not the same as the original array
+        for i in range(0, len(results)):
+            if (pinyins[i] != results[i]):
+                return results
+    
+    return None
+
+def generate_typo_noise(pinyins):
+    return 0
 
 def gen_vocab(raw_file, filename):
     with codecs.open(raw_file, encoding='utf-8') as f:
@@ -89,8 +162,8 @@ def gen_vocab(raw_file, filename):
             c[token] = c[token] + 1
 
     with codecs.open(filename, 'w', encoding='utf-8') as fout:
-        for tup in sorted(c.items(), key=operator.itemgetter(1), reverse=True):
-            fout.write(tup[0] + "\t" + str(tup[1]) + "\n")
+        for k in sorted(c.keys()):
+            fout.write(k + "\t" + str(c[k]) + "\n")
 
 def gen_source_target_files(triples, filename):
     n = len(triples)
@@ -125,8 +198,13 @@ if __name__ == "__main__":
     gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
 
     print("Extracting sms data...")
-    data = extract_triples(build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt'), min_paragraph_len=4)
-    gen_source_target_files(data, "sms_large")
+    # need to get rid of the debug flag when extracting the real data
+    data = extract_triples(
+        build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = False), 
+        min_paragraph_len=4)
+    gen_source_target_files(data, "sms_large_abbrs")
+
+    print("Done extracting...")
     
     # with open('data/sms_clean.data', 'wb') as outfile:
         # pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)

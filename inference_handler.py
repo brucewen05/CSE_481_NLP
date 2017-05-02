@@ -5,7 +5,6 @@ from seq2seq import tasks, models
 from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 
-
 class DecodeOnce(InferenceTask):
   '''
   Similar to tasks.DecodeText, but for one input only.
@@ -115,18 +114,33 @@ sess = tf.train.MonitoredSession(
   session_creator=session_creator,
   hooks=[DecodeOnce({}, callback_func=_save_prediction_to_dict)])
 
-# The main API exposed
+# The main APIs exposed
 def query_once(source_tokens):
+  print("received source tokens:", source_tokens)
   tf.reset_default_graph()
   source_tokens = source_tokens.split() + ["SEQUENCE_END"]
   sess.run([], {
       source_tokens_ph: [source_tokens],
       source_len_ph: [len(source_tokens)]
     })
-  return prediction_dict.pop(_tokens_to_str(source_tokens))
 
+  result_array = prediction_dict.pop(_tokens_to_str(source_tokens))
+  result_string = ""
+  for i in range(0, len(result_array)):
+    if (result_array[i] != " "):
+      result_string += result_array[i]
+  
+  return [result_string]
+
+def query(context, pinyins):
+  # TODO: do not hard code window size here
+  context = " ".join(list(context)[-10:])
+  pinyins = " ".join(list("".join(pinyins)))
+  print("------------", context + " | " + pinyins)
+  return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":
+  tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
   samples = [
     u"^ 下 班 | h o u y i q i c h i f a n",
@@ -137,4 +151,6 @@ if __name__ == "__main__":
     print(sample_in)
     print(query_once(sample_in))
     print()
+
+  print(query([u"^", u"你"], ["men", "hao"]))
   

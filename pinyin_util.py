@@ -1,11 +1,7 @@
 import codecs
 
-import os
-
-cur_path = os.path.dirname(os.path.abspath(__file__))
 # extracts valid full pinyins
-full_path = cur_path + "/data/valid_pinyins.txt"
-with codecs.open(full_path, encoding='utf-8') as f:
+with codecs.open("data/valid_pinyins.txt", encoding='utf-8') as f:
     lines = f.readlines()
 valid_pinyins = set([line.strip() for line in lines])
 
@@ -13,13 +9,18 @@ valid_prefixes = ["b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j",
         "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"]
 invalid_single_char = ["i", "u", "v"]
 
+# for typos: gnerate a typo lookup table:
+#                                        probably by coding each key
+#                                        with its coordinates, and classify
+#                                        a key is likely to be a typo of another
+#                                        if the distance is close ?? write to disk 
+
 full_pinyin_candidates = {}
 pinyin_prefix_candidates = {}
 
 # constructs candidate map
 
-full_path = cur_path + "/data/pinyin_char_dictionary.txt"
-with codecs.open(full_path, encoding='utf-8') as f:
+with codecs.open("data/pinyin_char_dictionary.txt", encoding='utf-8') as f:
     lines = f.readlines()
 for line in [line.strip() for line in lines]:
     tokens = line.split("=")
