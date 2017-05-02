@@ -20,6 +20,10 @@ GENERATE_ABBREVIATION_TUPLE_PROBABILITY = 0.5
 # pinyin token
 GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.5
 
+def print_and_log(s):
+    print(s)
+    summary_file.write(str(s) + "\n")
+
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
@@ -40,7 +44,7 @@ def build_parallel_paragraphs_lcmc():
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
 
-def build_parallel_paragraphs_from_txt(filename, debug = False):
+def build_parallel_paragraphs_from_txt(filename, debug=False):
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
@@ -64,15 +68,20 @@ def build_parallel_paragraphs_from_txt(filename, debug = False):
     
 # min_paragraph_len includes "^"
 # first_n: only extract the first n triples
-def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, first_n=None, min_paragraph_len=6):
-    # print(len(paragraph_pairs))
+def extract_triples(paragraph_pairs,
+        context_window=10,
+        max_input_window=5,
+        first_n=None,
+        min_paragraph_len=6,
+        add_abbr=True):
+    # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
     all_valid_chars = pu.get_all_candidates_chars()
 
     for pp in paragraph_pairs:
         if len(pp[0]) != len(pp[1]):
-            # print(''.join(pp[0]) + " ==> " + ' '.join(pp[1]))
+            # print_and_log(''.join(pp[0]) + " ==> " + ' '.join(pp[1]))
             # weird encoding error in the dataset, skip
             continue
         if len(pp[0]) < min_paragraph_len:
@@ -85,18 +94,18 @@ def extract_triples(paragraph_pairs, context_window=10, max_input_window=5, firs
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
-                #print(pinyins)
+                #print_and_log(pinyins)
                 chars = pp[0][cursor:input_window_end]
 
                 if (len(chars) > 0):
                     triples.append((" ".join(context), " ".join(pinyins), " ".join(chars)))
                     if first_n is not None and len(triples) == first_n:
                         return triples
-                    if (random.random() < GENERATE_ABBREVIATION_TUPLE_PROBABILITY):
+                    if (add_abbr and random.random() < GENERATE_ABBREVIATION_TUPLE_PROBABILITY):
                         abbreviation_pinyins = generate_abbreviation_noise(pinyins, GENERATE_ABBREVIATION_TOKEN_PROBABILITY)
                         if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
-    print(len(triples))
+    print_and_log(len(triples))
     return triples
 
 def generate_abbreviation_noise(pinyins, prob):
@@ -130,15 +139,15 @@ def generate_abbreviation_noise(pinyins, prob):
         if (random.random() > prob):
             results[i] = pinyins[i]
 
-    # print("orignal array:", pinyins)
-    # print("abbreviation array:", results)
+    # print_and_log("orignal array:", pinyins)
+    # print_and_log("abbreviation array:", results)
     segment_results_result = pu.segment_with_hint("".join(results))
     segment_original_result = pu.segment_with_hint("".join(pinyins))
     
-    # print("segmentation result for noisy result:", segment_results_result)
-    # print("segmentation result for orignal array:", segment_original_result)
+    # print_and_log("segmentation result for noisy result:", segment_results_result)
+    # print_and_log("segmentation result for orignal array:", segment_original_result)
     if (len(segment_results_result) == len(segment_original_result)):
-        #print("returning result")
+        #print_and_log("returning result")
         # to make sure the result is not the same as the original array
         for i in range(0, len(results)):
             if (pinyins[i] != results[i]):
@@ -170,9 +179,9 @@ def gen_source_target_files(triples, filename):
     train_size = int(n * .7)
     dev_size = int(n * .1)
     test_size = n - train_size - dev_size
-    print("train: " + str(train_size))
-    print("dev: " + str(dev_size))
-    print("test: " + str(test_size))
+    print_and_log("train: " + str(train_size))
+    print_and_log("dev: " + str(dev_size))
+    print_and_log("test: " + str(test_size))
 
     with codecs.open("data/train/" + filename + ".source", 'w', encoding='utf-8') as train_source:
         with codecs.open("data/train/" + filename + ".target", 'w', encoding='utf-8') as train_target:
@@ -194,37 +203,32 @@ def gen_source_target_files(triples, filename):
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
-    print("Generating vocab...")
+    summary_file = open("data/data_summary.txt", "w")
+
+    print_and_log("Generating vocab...")
+
+    gen_vocab("data/weibo.txt", "data/vocab/weibo")
     gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
 
-    print("Extracting sms data...")
-    # need to get rid of the debug flag when extracting the real data
-    data = extract_triples(
-        build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt', debug = False), 
-        min_paragraph_len=4)
-    gen_source_target_files(data, "sms_large_abbrs")
+    print_and_log("Extracting sms data...")
+    pp_sms = build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt')
+    print_and_log("clean")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False), "sms_clean")
+    print_and_log("abbrs")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True), "sms_abbrs")
 
-    print("Done extracting...")
-    
-    # with open('data/sms_clean.data', 'wb') as outfile:
-        # pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    # with open('data/sms_clean.sample', 'w') as outfile:
-    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
-    #     outfile.write(sample)
+    print_and_log("Extracting lcmc data...")
+    pp_lcmc = build_parallel_paragraphs_lcmc()
+    print_and_log("clean")
+    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False), "lcmc_clean")
+    print_and_log("abbrs")
+    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True), "lcmc_abbrs")
 
-    # print("Extracting lcmc data...")
-    # data = extract_triples(build_parallel_paragraphs_lcmc())
-    # with open('data/lcmc_clean.data', 'wb') as outfile:
-    #     pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    # with open('data/lcmc_clean.sample', 'w') as outfile:
-    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
-    #     outfile.write(sample)
+    print_and_log("Extracting weibo data...")
+    pp_weibo = build_parallel_paragraphs_from_txt('data/weibo.txt')
+    print_and_log("clean")
+    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False), "weibo_clean")
+    print_and_log("abbrs")
+    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True), "weibo_abbrs")
 
-    # print("Extracting weibo data...")
-
-    # data = extract_triples(build_parallel_paragraphs_from_txt('data/weibo.txt'), min_paragraph_len=4, first_n=1000000)
-    # with open('data/weibo_clean.data', 'wb') as outfile:
-    #     pickle.dump(data, outfile, pickle.HIGHEST_PROTOCOL)
-    # with open('data/weibo_clean.sample', 'w') as outfile:
-    #     sample = json.dumps(data[:100], indent=4, sort_keys=True)
-    #     outfile.write(sample)
+    summary_file.close()

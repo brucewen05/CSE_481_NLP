@@ -2,6 +2,7 @@
 /data/*.db3
 /data/*.data
 /data/weibo.txt
+/data/data_summary.txt
 /data/train/*
 /data/test/*
 /data/dev/*
