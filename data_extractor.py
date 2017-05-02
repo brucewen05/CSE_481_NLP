@@ -60,9 +60,10 @@ def build_parallel_paragraphs_from_txt(filename, debug=False):
     
     for i in range(len(lines)):
         parts = lines[i].split(' ==> ')
-        p = re.sub(r'([^a-z ])', r' \1 ', "^" + parts[1])
-        char_paragraphs.append(list("^" + parts[0]))
-        pinyin_paragraphs.append(p.split())
+        if len(parts) == 2:
+            p = re.sub(r'([^a-z ])', r' \1 ', "^" + parts[1])
+            char_paragraphs.append(list("^" + parts[0]))
+            pinyin_paragraphs.append(p.split())
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
     
