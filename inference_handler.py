@@ -14,6 +14,12 @@ class DecodeOnce(InferenceTask):
   def __init__(self, params, callback_func):
     super(DecodeOnce, self).__init__(params)
     self.callback_func=callback_func
+    self._beam_accum = {
+      "predicted_ids": [],
+      "beam_parent_ids": [],
+      "scores": [],
+      "log_probs": []
+    }
   
   @staticmethod
   def default_params():
@@ -23,6 +29,10 @@ class DecodeOnce(InferenceTask):
     fetches = {}
     fetches["predicted_tokens"] = self._predictions["predicted_tokens"]
     fetches["features.source_tokens"] = self._predictions["features.source_tokens"]
+    fetches["beam_search_output.predicted_ids"] = self._predictions["beam_search_output.predicted_ids"]
+    fetches["beam_search_output.beam_parent_ids"] = self._predictions["beam_search_output.beam_parent_ids"]
+    fetches["beam_search_output.scores"] = self._predictions["beam_search_output.scores"]
+    fetches["beam_search_output.log_probs"] = self._predictions["beam_search_output.log_probs"]
     return tf.train.SessionRunArgs(fetches)
 
   def after_run(self, _run_context, run_values):
@@ -32,6 +42,11 @@ class DecodeOnce(InferenceTask):
       fetches["predicted_tokens"] = np.char.decode(
           fetches["predicted_tokens"].astype("S"), "utf-8")
       predicted_tokens = fetches["predicted_tokens"]
+
+      self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
+      self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
+      self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
+      self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
 
       # If we're using beam search we take the first beam
       # TODO: beam search top k
