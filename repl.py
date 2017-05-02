@@ -1,5 +1,6 @@
 import sys
 import re
+import pprint
 
 
 import pinyin_util as pu
@@ -15,9 +16,14 @@ dummy_list2 = [u"\u54C8\u54C8", u"\u563F\u563F",
                u"\u5662\u5662", u"\u77E5\u77E5", u"\u9053\u9053\u9053"]
 
 # predictions_list: results from beam search
-def sort_and_merge_predictions(predictions_list, max_items=9):
-    flat_list = [item for sublist in predictions_list for item in sublist]
-    #print(flat_list)
+def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
+    flat_list = []
+    for sublist in predictions_list:
+        if len(sublist[0][0]) > cutoff:
+            flat_list.append(sublist[0])
+        else:
+            flat_list.extend(sublist)
+            # pprint.pprint(flat_list)
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
     return [x[0] for x in ranked]
 
