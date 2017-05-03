@@ -57,4 +57,4 @@ python3 seq2seq/bin/train.py \
 	--train_steps $TRAIN_STEPS \
 	--output_dir $model_dir \
 	--save_checkpoints_steps 10000 \
-	--eval_every_n_steps 5000
+	--eval_every_n_steps 10000

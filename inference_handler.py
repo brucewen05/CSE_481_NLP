@@ -47,6 +47,11 @@ class DecodeOnce(InferenceTask):
       self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
       self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
 
+      print("\n\n")
+#      print(self._beam_accum)
+      print(predicted_tokens)
+      print("\n\n")
+
       # If we're using beam search we take the first beam
       # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
@@ -60,7 +65,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "model/sms_large"
+MODEL_DIR = "model/mixed_abbrs_05_02"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -70,6 +75,8 @@ train_options = training_utils.TrainOptions.load(MODEL_DIR)
 model_cls = locate(train_options.model_class) or \
   getattr(models, train_options.model_class)
 model_params = train_options.model_params
+
+model_params["inference.beam_search.beam_width"] = 10
 
 model = model_cls(
     params=model_params,

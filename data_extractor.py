@@ -6,9 +6,9 @@ import operator
 import random
 import lcmc_queries as lcmc
 import pinyin_util as pu
+import numpy as np
 
 random.seed(1)
-
 
 # total size of lines to read from txt file
 # used only for debugging purpose
@@ -28,43 +28,55 @@ def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
+    segment_positions = []
 
     for tup in lcmc.get_char_paragraphs():
-        char_paragraphs.append(list(tup[0]))
+        segments = [len(x) for x in tup[0].split('|') if x != '']
+        segment_positions.append(np.cumsum(segments))
+        p = re.sub(r'\|', r'', tup[0])
+        char_paragraphs.append(list(p))
 
     for tup in lcmc.get_pinyin_paragraphs():
         # drop tunes and add paddings
-        p = re.sub(r'([a-z]+)[0-9] *', r' \1 ', tup[0])
+        p = re.sub(r'\|', r'', tup[0])
+        p = re.sub(r'([a-z]+)[0-9] *', r' \1 ', p)
         p = re.sub(r'([^a-z ])', r' \1 ', p)
         # fix "uu"=>"v" in lcmc pinyin
         p = re.sub(r'uu', r'v', p)        
         pinyin_paragraphs.append(p.split())
 
     assert len(char_paragraphs) == len(pinyin_paragraphs)
-    return list(zip(char_paragraphs, pinyin_paragraphs))
+    return list(zip(char_paragraphs, pinyin_paragraphs, segment_positions))
 
 
 def build_parallel_paragraphs_from_txt(filename, debug=False):
     # each paragraph[0] = "^" as START symbol
     char_paragraphs = []
     pinyin_paragraphs = []
+    segment_positions = []
 
     with codecs.open(filename, encoding='utf-8') as f:
         lines = f.readlines()
 
     if (debug):
-        lines = lines[0:MAX_LINE_NUMBER]
+        lines = lines[:MAX_LINE_NUMBER]
 
     lines = [x.strip() for x in lines]
-    lines = list(set(lines))
+    lines = sorted(list(set(lines)))
     
     for i in range(len(lines)):
         parts = lines[i].split(' ==> ')
         if len(parts) == 2:
-            p = re.sub(r'([^a-z ])', r' \1 ', "^" + parts[1])
-            char_paragraphs.append(list("^" + parts[0]))
+            parts[0] = "^|" + parts[0]
+            parts[1] = "^|" + parts[1]
+            segments = [len(x) for x in parts[0].split('|') if x != '']
+            segment_positions.append(np.cumsum(segments))
+            parts[0] = re.sub(r'\|', r'', parts[0])
+            parts[1] = re.sub(r'\|', r'', parts[1])
+            p = re.sub(r'([^a-z ])', r' \1 ', parts[1])
+            char_paragraphs.append(list(parts[0]))
             pinyin_paragraphs.append(p.split())
-    return list(zip(char_paragraphs, pinyin_paragraphs))
+    return list(zip(char_paragraphs, pinyin_paragraphs, segment_positions))
 
     
 # min_paragraph_len includes "^"
@@ -82,17 +94,20 @@ def extract_triples(paragraph_pairs,
 
     for pp in paragraph_pairs:
         if len(pp[0]) != len(pp[1]):
-            # print_and_log(''.join(pp[0]) + " ==> " + ' '.join(pp[1]))
             # weird encoding error in the dataset, skip
             continue
         if len(pp[0]) < min_paragraph_len:
             continue
-
-        # TODO: Consider only putting cursor and input window on word boundaries
+        segment_positions = pp[2]
+        # only put cursor and input window on word boundaries
         for cursor in range(1, len(pp[0])):
+            if not cursor in segment_positions:
+                continue
             for input_window_end in range(cursor + 1, min(cursor + max_input_window + 1, len(pp[0]))):
                 if len([i for i in range(cursor, input_window_end) if not pp[0][i] in all_valid_chars]) > 0:
                     break
+                if not input_window_end in segment_positions:
+                    continue
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
                 #print_and_log(pinyins)
@@ -107,6 +122,7 @@ def extract_triples(paragraph_pairs,
                         if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
     print_and_log(len(triples))
+    random.shuffle(triples)
     return triples
 
 def generate_abbreviation_noise(pinyins, prob):
@@ -176,6 +192,7 @@ def gen_vocab(raw_file, filename):
             fout.write(k + "\t" + str(c[k]) + "\n")
 
 def gen_source_target_files(triples, filename):
+    # train dev test = 7:1:2
     n = len(triples)
     train_size = int(n * .7)
     dev_size = int(n * .1)
@@ -213,6 +230,7 @@ if __name__ == "__main__":
 
     print_and_log("Extracting sms data...")
     pp_sms = build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt')
+
     print_and_log("clean")
     gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False), "sms_clean")
     print_and_log("abbrs")

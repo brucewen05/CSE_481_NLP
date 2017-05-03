@@ -5,13 +5,13 @@ cursor = connection.cursor()
 
 def get_char_paragraphs():
     return cursor.execute('''
-        SELECT "^" || group_concat(characters, "") FROM full_sentences
+        SELECT "^|" || group_concat(w.characters, "|") FROM words w
         GROUP BY file_id, paragraph_num
     ''')
 
 def get_pinyin_paragraphs():
     return cursor.execute('''
-        SELECT "^" || group_concat(characters, "") FROM pinyin_full_sentences
+        SELECT "^|" || group_concat(w.characters, "|") FROM pinyin_words w
         GROUP BY file_id, paragraph_num
     ''')    
 
