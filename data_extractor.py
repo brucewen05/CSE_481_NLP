@@ -227,6 +227,7 @@ if __name__ == "__main__":
 
     gen_vocab("data/weibo.txt", "data/vocab/weibo")
     gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
+    gen_vocab("data/wiki.txt", "data/vocab/wiki")
 
     print_and_log("Extracting sms data...")
     pp_sms = build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt')
@@ -249,5 +250,12 @@ if __name__ == "__main__":
     gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False), "weibo_clean")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True), "weibo_abbrs")
+
+    print_and_log("Extracting wiki data...")
+    pp_wiki = build_parallel_paragraphs_from_txt('data/wiki.txt')
+    print_and_log("clean")
+    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False), "wiki_clean")
+    print_and_log("abbrs")
+    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True), "wiki_abbrs")
 
     summary_file.close()
