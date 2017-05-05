@@ -20,6 +20,7 @@ class DecodeOnce(InferenceTask):
       "scores": [],
       "log_probs": []
     }
+    self.top_k = 10
   
   @staticmethod
   def default_params():
@@ -58,7 +59,7 @@ class DecodeOnce(InferenceTask):
         else:
           cur_prediction = predicted_tokens[i-1:i,cur_id]
           parent_id = self._beam_accum["beam_parent_ids"][0][i-1][cur_id]
-          return np.append(beam_search_trace_back(i-1, parent_id), cur_prediction)
+          return np.append(beam_search_traceback(i-1, parent_id), cur_prediction)
 
       # If we're using beam search we take the first beam
       # TODO: beam search top k
@@ -66,10 +67,16 @@ class DecodeOnce(InferenceTask):
         #predicted_tokens = predicted_tokens[:, 0]
         beam_search_predicted_tokens = []
         seq_len = predicted_tokens.shape[0] - 1
+        beam_width = predicted_tokens.shape[1]
         for length in range(seq_len, 0, -1):
-          beam_search_predicted_tokens.append(beam_search_trace_back(length, 0))
+          prediction_per_len = []
+          for k in range(0, min(beam_width, self.top_k)):
+            pred_tokens_k  = beam_search_traceback(length, k)
+            if not arreq_in_list(pred_tokens_k, prediction_per_len):
+              prediction_per_len.append(pred_tokens_k)
+          beam_search_predicted_tokens.append(prediction_per_len)
         predicted_tokens = beam_search_predicted_tokens
-
+      
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
       source_tokens = fetches["features.source_tokens"]
@@ -128,8 +135,11 @@ def _tokens_to_str(tokens):
 # A hacky way to retrieve prediction result from the task hook...
 prediction_dict = {}
 def _save_prediction_to_dict(source_tokens, predicted_tokens):
-  prediction_dict[_tokens_to_str(source_tokens)] = [_tokens_to_str(predicted_token) for predicted_token in predicted_tokens]
+  prediction_dict[_tokens_to_str(source_tokens)] = [[_tokens_to_str(predicted_token) for predicted_token in predicted_tokens_len] for predicted_tokens_len in predicted_tokens]
 
+def arreq_in_list(target_ndarray, list_ndarrays):
+      return next((True for elem in list_ndarrays if np.array_equal(elem, target_ndarray)), False)
+    
 sess = tf.train.MonitoredSession(
   session_creator=session_creator,
   hooks=[DecodeOnce({}, callback_func=_save_prediction_to_dict)])
@@ -168,9 +178,7 @@ if __name__ == "__main__":
     u"^ 你 带 钥 匙 | m e i y o u a"
   ]
   for sample_in in samples:
-    print(sample_in)
-    print(query_once(sample_in))
+    pprint.pprint(sample_in)
+    pprint.pprint(query_once(sample_in))
     print()
-
-  print(query([u"^", u"你"], ["men", "hao"]))
   
