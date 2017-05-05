@@ -4,6 +4,7 @@ import numpy as np
 from seq2seq import tasks, models
 from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
+import pprint
 
 class DecodeOnce(InferenceTask):
   '''
@@ -51,11 +52,23 @@ class DecodeOnce(InferenceTask):
 #      print(self._beam_accum)
       print(predicted_tokens)
       print("\n\n")
+      
+      def beam_search_traceback(i, cur_id):
+        if i == 0: return np.array([])
+        else:
+          cur_prediction = predicted_tokens[i-1:i,cur_id]
+          parent_id = self._beam_accum["beam_parent_ids"][0][i-1][cur_id]
+          return np.append(beam_search_trace_back(i-1, parent_id), cur_prediction)
 
       # If we're using beam search we take the first beam
       # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
-        predicted_tokens = predicted_tokens[:, 0]
+        #predicted_tokens = predicted_tokens[:, 0]
+        beam_search_predicted_tokens = []
+        seq_len = predicted_tokens.shape[0] - 1
+        for length in range(seq_len, 0, -1):
+          beam_search_predicted_tokens.append(beam_search_trace_back(length, 0))
+        predicted_tokens = beam_search_predicted_tokens
 
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
@@ -115,7 +128,7 @@ def _tokens_to_str(tokens):
 # A hacky way to retrieve prediction result from the task hook...
 prediction_dict = {}
 def _save_prediction_to_dict(source_tokens, predicted_tokens):
-  prediction_dict[_tokens_to_str(source_tokens)] = _tokens_to_str(predicted_tokens)
+  prediction_dict[_tokens_to_str(source_tokens)] = [_tokens_to_str(predicted_token) for predicted_token in predicted_tokens]
 
 sess = tf.train.MonitoredSession(
   session_creator=session_creator,
@@ -132,12 +145,12 @@ def query_once(source_tokens):
     })
 
   result_array = prediction_dict.pop(_tokens_to_str(source_tokens))
-  result_string = ""
+  result_string = []
   for i in range(0, len(result_array)):
     if (result_array[i] != " "):
-      result_string += result_array[i]
+      result_string.append(result_array[i])
   
-  return [result_string]
+  return result_string
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
