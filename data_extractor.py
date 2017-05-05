@@ -23,8 +23,8 @@ GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.8
 
 # probability to use typo for a given pinyin token
 GENERATE_TYPO_TUPLE_PROBABILITY = 0.5
-# probability to generate a typo of transposed letter
-GENERATE_TRANSPOSED_LETTER_PROBABILITY = 0.8
+# probability to generate a typo for each letter
+GENERATE_TYPO_LETTER_PROBABILITY = 0.8
 
 
 def print_and_log(s):
@@ -131,7 +131,7 @@ def extract_triples(paragraph_pairs,
                         if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
                     if (add_typo and random.random() < GENERATE_TYPO_TUPLE_PROBABILITY):
-                        typo_pinyins = generate_typo_noise(pinyins, GENERATE_TRANSPOSED_LETTER_PROBABILITY)
+                        typo_pinyins = generate_typo_noise(pinyins, GENERATE_TYPO_LETTER_PROBABILITY)
                         if (typo_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(typo_pinyins), " ".join(chars)))
     print_and_log(len(triples))
@@ -185,15 +185,33 @@ def generate_abbreviation_noise(pinyins, prob):
     
     return None
 
+
+
 def generate_typo_noise(pinyins, prob):
-    # generate transpose
+    """
+    Generate typo noise of the given pinyin tokens
+    For each letter, a mutation is randomly chosen from:
+        - Transposed with adjacent letter on a qwerty keyboard
+        - Removed.
+        - Adjacent letter is added before/after the current letter.
+        - Switched with its adjacent letter (in pinyin token).
+    """
     results = []
     for pinyin_token in pinyins:
         typo = list(pinyin_token)
         for i in range(len(typo)):
-            if random.random() > prob:
-                transpose, possibility = pu.typo_transpose_letter[typo[i]]
-                typo[i] = transpose[np.random.choice(len(possibility), p=possibility)]
+            transpose, possibility = pu.typo_transpose_letter[typo[i]]
+            transposeLetter = transpose[np.random.choice(len(possibility), p=possibility)]
+            if random.random() < prob:
+                typo[i] = random.choice(
+                    [transposeLetter,            # Transpose adjacent letter on keyboard
+                     transposeLetter + typo[i],  # insert letter before
+                     typo[i] + transposeLetter,  # insert letter after
+                     "",                         # remove letter
+                     typo[i+1] if i == 0 and i != len(typo) - 1    # 1st:switch with adjacent letter (left)
+                     else typo[i-1] if i == len(typo) - 1          # last:switch with adjacent letter (right)
+                     else random.choice([typo[i+1], typo[i-1]])])  # switch with left/right adjacent letter
+
         results.append(''.join(typo))
     # print_and_log("orignal array:" + pinyins)
     # print_and_log("abbreviation array:" + results)
@@ -285,8 +303,10 @@ if __name__ == "__main__":
     print_and_log("Extracting wiki data...")
     pp_wiki = build_parallel_paragraphs_from_txt('data/wiki.txt')
     print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False), "wiki_clean")
+    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean")
     print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True), "wiki_abbrs")
+    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs")
+    print_and_log("typos")
+    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos")
 
     summary_file.close()

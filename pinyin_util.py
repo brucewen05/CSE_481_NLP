@@ -14,7 +14,7 @@ invalid_single_char = ["i", "u", "v"]
 #                                        with its coordinates, and classify
 #                                        a key is likely to be a typo of another
 #                                        if the distance is close ?? write to disk
-
+# data from: http://datagenetics.com/blog/november42012/index.html
 typo_transpose_letter = {'a': [['q', 's', 'w', 'x', 'z'],
        [0.009771022502960917,
         0.6974766416633768,
