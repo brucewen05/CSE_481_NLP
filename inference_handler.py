@@ -20,7 +20,7 @@ class DecodeOnce(InferenceTask):
       "scores": [],
       "log_probs": []
     }
-    self.top_k = 10
+    self.top_k = 20
   
   @staticmethod
   def default_params():
@@ -49,10 +49,10 @@ class DecodeOnce(InferenceTask):
       self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
       self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
 
-      print("\n\n")
+ #     print("\n\n")
 #      print(self._beam_accum)
-      print(predicted_tokens)
-      print("\n\n")
+      #print(predicted_tokens)
+#      print("\n\n")
       
       def beam_search_traceback(i, cur_id):
         if i == 0: return np.array([])
@@ -68,12 +68,14 @@ class DecodeOnce(InferenceTask):
         beam_search_predicted_tokens = []
         seq_len = predicted_tokens.shape[0] - 1
         beam_width = predicted_tokens.shape[1]
+      
         for length in range(seq_len, 0, -1):
           prediction_per_len = []
           for k in range(0, min(beam_width, self.top_k)):
             pred_tokens_k  = beam_search_traceback(length, k)
-            if not arreq_in_list(pred_tokens_k, prediction_per_len):
-              prediction_per_len.append(pred_tokens_k)
+            prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
+            if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+              prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
           beam_search_predicted_tokens.append(prediction_per_len)
         predicted_tokens = beam_search_predicted_tokens
       
@@ -96,7 +98,7 @@ model_cls = locate(train_options.model_class) or \
   getattr(models, train_options.model_class)
 model_params = train_options.model_params
 
-model_params["inference.beam_search.beam_width"] = 10
+model_params["inference.beam_search.beam_width"] = 20
 
 model = model_cls(
     params=model_params,
@@ -135,10 +137,10 @@ def _tokens_to_str(tokens):
 # A hacky way to retrieve prediction result from the task hook...
 prediction_dict = {}
 def _save_prediction_to_dict(source_tokens, predicted_tokens):
-  prediction_dict[_tokens_to_str(source_tokens)] = [[_tokens_to_str(predicted_token) for predicted_token in predicted_tokens_len] for predicted_tokens_len in predicted_tokens]
+  prediction_dict[_tokens_to_str(source_tokens)] = [[(_tokens_to_str(predicted_token[0]), predicted_token[1]) for predicted_token in predicted_tokens_len] for predicted_tokens_len in predicted_tokens]
 
-def arreq_in_list(target_ndarray, list_ndarrays):
-      return next((True for elem in list_ndarrays if np.array_equal(elem, target_ndarray)), False)
+def _arreq_in_list(target_ndarray, list_ndarrays):
+      return next((True for elem in list_ndarrays if np.array_equal(elem[0], target_ndarray)), False)
     
 sess = tf.train.MonitoredSession(
   session_creator=session_creator,
@@ -175,10 +177,14 @@ if __name__ == "__main__":
   samples = [
     u"^ 下 班 | h o u y i q i c h i f a n",
     u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
-    u"^ 你 带 钥 匙 | m e i y o u a"
+    u"^ 你 带 钥 匙 | m e i y o u a",
+    u"^ 我 妹 妹 | t a",
+    u"^ 我 弟 弟 | t a",
+    u"^ 我 妈 妈 现 在 在 家 , | t a",
+    u"^ 我 爸 爸 现 在 在 家 , | t a",
   ]
   for sample_in in samples:
     pprint.pprint(sample_in)
-    pprint.pprint(query_once(sample_in))
+    print(query_once(sample_in))
     print()
   
