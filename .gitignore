@@ -3,6 +3,7 @@
 /data/*.data
 /data/weibo.txt
 /data/data_summary.txt
+/data/wiki.txt
 /data/train/*
 /data/test/*
 /data/dev/*

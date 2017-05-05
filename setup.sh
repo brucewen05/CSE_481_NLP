@@ -8,7 +8,7 @@ fi
 
 corpus_name="$1"
 train_steps="$3"
-data_path="${HOME}/notebooks/CSE_481_NLP/data"
+data_path="/data"
 
 echo "Using corpus: ${corpus_name}"
 echo "Using train steps: ${train_steps}"

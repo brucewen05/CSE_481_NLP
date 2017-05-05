@@ -1,5 +1,4 @@
 # !/bin/bash
-0;95;0c
 if [ $# != 3 ]
 then
     echo "${0} corpus_name config_yaml train_steps"
