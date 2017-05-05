@@ -20,9 +20,17 @@ GENERATE_ABBREVIATION_TUPLE_PROBABILITY = 0.5
 # pinyin token
 GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.8
 
+
+# probability to use typo for a given pinyin token
+GENERATE_TYPO_TUPLE_PROBABILITY = 0.5
+# probability to generate a typo of transposed letter
+GENERATE_TRANSPOSED_LETTER_PROBABILITY = 0.8
+
+
 def print_and_log(s):
     print(s)
     summary_file.write(str(s) + "\n")
+
 
 def build_parallel_paragraphs_lcmc():
     # each paragraph[0] = "^" as START symbol
@@ -86,7 +94,8 @@ def extract_triples(paragraph_pairs,
         max_input_window=5,
         first_n=None,
         min_paragraph_len=6,
-        add_abbr=True):
+        add_abbr=True,
+        add_typo=True,):
     # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
@@ -121,6 +130,10 @@ def extract_triples(paragraph_pairs,
                         abbreviation_pinyins = generate_abbreviation_noise(pinyins, GENERATE_ABBREVIATION_TOKEN_PROBABILITY)
                         if (abbreviation_pinyins is not None and abbreviation_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(abbreviation_pinyins), " ".join(chars)))
+                    if (add_typo and random.random() < GENERATE_TYPO_TUPLE_PROBABILITY):
+                        typo_pinyins = generate_typo_noise(pinyins, GENERATE_TRANSPOSED_LETTER_PROBABILITY)
+                        if (typo_pinyins != pinyins):
+                            triples.append((" ".join(context), " ".join(typo_pinyins), " ".join(chars)))
     print_and_log(len(triples))
     random.shuffle(triples)
     return triples
@@ -172,8 +185,20 @@ def generate_abbreviation_noise(pinyins, prob):
     
     return None
 
-def generate_typo_noise(pinyins):
-    return 0
+def generate_typo_noise(pinyins, prob):
+    # generate transpose
+    results = []
+    for pinyin_token in pinyins:
+        typo = list(pinyin_token)
+        for i in range(len(typo)):
+            if random.random() > prob:
+                transpose, possibility = pu.typo_transpose_letter[typo[i]]
+                typo[i] = transpose[np.random.choice(len(possibility), p=possibility)]
+        results.append(''.join(typo))
+    # print_and_log("orignal array:" + pinyins)
+    # print_and_log("abbreviation array:" + results)
+    return results
+
 
 def gen_vocab(raw_file, filename):
     with codecs.open(raw_file, encoding='utf-8') as f:
@@ -232,22 +257,28 @@ if __name__ == "__main__":
     pp_sms = build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt')
 
     print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False), "sms_clean")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean")
     print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True), "sms_abbrs")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False), "sms_abbrs")
+    print_and_log("typos")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
 
     print_and_log("Extracting lcmc data...")
     pp_lcmc = build_parallel_paragraphs_lcmc()
     print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False), "lcmc_clean")
+    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False), "lcmc_clean")
     print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True), "lcmc_abbrs")
+    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False), "lcmc_abbrs")
+    print_and_log("typos")
+    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
 
     print_and_log("Extracting weibo data...")
     pp_weibo = build_parallel_paragraphs_from_txt('data/weibo.txt')
     print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False), "weibo_clean")
+    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False), "weibo_clean")
     print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True), "weibo_abbrs")
+    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False), "weibo_abbrs")
+    print_and_log("typos")
+    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
 
     summary_file.close()
