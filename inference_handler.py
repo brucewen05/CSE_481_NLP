@@ -155,14 +155,17 @@ def query_once(source_tokens):
       source_tokens_ph: [source_tokens],
       source_len_ph: [len(source_tokens)]
     })
-
-  result_array = prediction_dict.pop(_tokens_to_str(source_tokens))
-  result_string = []
-  for i in range(0, len(result_array)):
-    if (result_array[i] != " "):
-      result_string.append(result_array[i])
+  print(_tokens_to_str(source_tokens))
+  print("============================")
+  print(prediction_dict)
+  # result_array = prediction_dict.pop(_tokens_to_str(source_tokens))
+  # result_string = []
+  # for i in range(0, len(result_array)):
+  #   if (result_array[i] != " "):
+  #     result_string.append(result_array[i])
   
-  return result_string
+  # return result_string
+  return "hello"
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
