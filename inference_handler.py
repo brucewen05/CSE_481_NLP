@@ -5,6 +5,7 @@ from seq2seq import tasks, models
 from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
+import logging
 
 class DecodeOnce(InferenceTask):
   '''
@@ -20,7 +21,7 @@ class DecodeOnce(InferenceTask):
       "scores": [],
       "log_probs": []
     }
-    self.top_k = 20
+    self.top_k = 10
   
   @staticmethod
   def default_params():
@@ -65,19 +66,23 @@ class DecodeOnce(InferenceTask):
       # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
         #predicted_tokens = predicted_tokens[:, 0]
-        beam_search_predicted_tokens = []
-        seq_len = predicted_tokens.shape[0] - 1
-        beam_width = predicted_tokens.shape[1]
-      
-        for length in range(seq_len, 0, -1):
-          prediction_per_len = []
-          for k in range(0, min(beam_width, self.top_k)):
-            pred_tokens_k  = beam_search_traceback(length, k)
-            prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
-            if not _arreq_in_list(pred_tokens_k, prediction_per_len):
-              prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-          beam_search_predicted_tokens.append(prediction_per_len)
-        predicted_tokens = beam_search_predicted_tokens
+        try:
+          beam_search_predicted_tokens = []
+          seq_len = predicted_tokens.shape[0]
+          beam_width = predicted_tokens.shape[1]
+        #print(predicted_tokens, self._beam_accum["log_probs"][0])
+          for length in range(1, seq_len):
+            prediction_per_len = []
+            for k in range(0, min(beam_width, self.top_k)):
+              pred_tokens_k  = beam_search_traceback(length, k)
+              prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
+              if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+                prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
+            beam_search_predicted_tokens.append(prediction_per_len)
+          predicted_tokens = beam_search_predicted_tokens
+        except IndexError as e:
+          predicted_tokens = []
+          logging.exception("")
       
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
@@ -98,7 +103,7 @@ model_cls = locate(train_options.model_class) or \
   getattr(models, train_options.model_class)
 model_params = train_options.model_params
 
-model_params["inference.beam_search.beam_width"] = 20
+model_params["inference.beam_search.beam_width"] = 10
 
 model = model_cls(
     params=model_params,
@@ -148,7 +153,7 @@ sess = tf.train.MonitoredSession(
 
 # The main APIs exposed
 def query_once(source_tokens):
-  print("received source tokens:", source_tokens)
+  #print("received source tokens:", source_tokens)
   tf.reset_default_graph()
   source_tokens = source_tokens.split() + ["SEQUENCE_END"]
   sess.run([], {
@@ -168,7 +173,7 @@ def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
-  print("------------", context + " | " + pinyins)
+  #print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":

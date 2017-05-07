@@ -62,7 +62,7 @@ def evaluate(target, predictions, k):
     lens = {}
     for data, prediction in zip(target, predictions):
         length = len(data.split()) - 1  # len of input. TODO: better way to get len of input
-        ground_truth = normalize_text(data)
+        ground_truth = data.strip()
         try:
             lens[length] += 1
         except KeyError:
@@ -80,6 +80,8 @@ def evaluate(target, predictions, k):
                     scores[fn.__name__ + '_len=' + str(length)] += 0
                 except KeyError:
                     scores[fn.__name__ + '_len=' + str(length)] = 0
+    
+    
     scores = {fn: round(100.0 * score / lens[int(fn.split('=')[-1])], 4) for fn, score in scores.items()}
     return scores
 
