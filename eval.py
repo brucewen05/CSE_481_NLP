@@ -6,12 +6,14 @@ import pinyin_util as pu
 import beam_search as bs
 import metric
 import argparse
-
+import inference_handler as s2s
 
 def predict(config):
     pprint.pprint(config)
     if config.model == 'bs.ngram_beam_search':
         model_func = bs.ngram_beam_search
+    elif config.model == 's2s':
+        model_func = s2s.query
     else:
         raise NotImplementedError()
 
@@ -59,8 +61,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_large.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_large.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_clean.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_clean.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')

@@ -92,7 +92,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "model/mixed_abbrs_05_04"
+MODEL_DIR = "/data/model/mixed_abbrs_words_05_09"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
