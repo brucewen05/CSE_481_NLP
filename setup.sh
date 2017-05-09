@@ -15,7 +15,6 @@ vocab_target="${data_path}/vocab/words_small"
 echo "Using corpus: ${corpus_name}"
 echo "Using train steps: ${train_steps}"
 
-vocab_source="${data_path}/vocab/${corpus_name}"
 echo "export VOCAB_SOURCE=${vocab_source}"
 export VOCAB_SOURCE=${vocab_source}
 echo "export VOCAB_TARGET=${vocab_source}"
