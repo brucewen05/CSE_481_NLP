@@ -3,6 +3,7 @@ import sys
 import os
 import pprint
 import pinyin_util as pu
+import inference_handler as s2s
 import beam_search as bs
 import metric
 import argparse
@@ -12,11 +13,13 @@ def predict(config):
     pprint.pprint(config)
     if config.model == 'bs.ngram_beam_search':
         model_func = bs.ngram_beam_search
+    elif config.model == 's2s':
+        model_func = s2s.query
     else:
         raise NotImplementedError()
 
-    source = load_data(config.test_data_source)
-    target = load_data(config.test_data_target)
+    source = load_data(config.test_data_source)[:20000]
+    target = load_data(config.test_data_target)[:20000]
     predictions = []
     index = 0
     for data in source:
@@ -59,8 +62,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_large.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_large.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_clean.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_clean.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')

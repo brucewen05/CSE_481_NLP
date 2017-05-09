@@ -45,10 +45,15 @@ class DecodeOnce(InferenceTask):
           fetches["predicted_tokens"].astype("S"), "utf-8")
       predicted_tokens = fetches["predicted_tokens"]
 
-      self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
-      self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
-      self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
-      self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
+      #self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
+      #self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
+      #self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
+      #self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
+
+      self._beam_accum["predicted_ids"] = [fetches["beam_search_output.predicted_ids"]]
+      self._beam_accum["beam_parent_ids"] = [fetches["beam_search_output.beam_parent_ids"]]
+      self._beam_accum["scores"] = [fetches["beam_search_output.scores"]]
+      self._beam_accum["log_probs"] = [fetches["beam_search_output.log_probs"]]
 
  #     print("\n\n")
 #      print(self._beam_accum)
@@ -81,8 +86,12 @@ class DecodeOnce(InferenceTask):
             beam_search_predicted_tokens.append(prediction_per_len)
           predicted_tokens = beam_search_predicted_tokens
         except IndexError as e:
-          predicted_tokens = []
           logging.exception("")
+          print(self._beam_accum)
+          print(predicted_tokens)
+          predicted_tokens = []
+          print("parents dim", np.ndim(self._beam_accum["beam_parent_ids"]))
+          print("predicted tokends dim", np.ndim(predicted_tokens))
       
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
@@ -199,17 +208,32 @@ def query(context, pinyins):
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
-  samples = [
-    u"^ 下 班 | h o u y i q i c h i f a n",
-    u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
-    u"^ 你 带 钥 匙 | m e i y o u a",
-    u"^ 我 妹 妹 | t a",
-    u"^ 我 弟 弟 | t a",
-    u"^ 我 妈 妈 现 在 在 家 , | t a",
-    u"^ 我 爸 爸 现 在 在 家 , | t a",
-  ]
-  for sample_in in samples:
-    pprint.pprint(sample_in)
-    print(query_once(sample_in))
-    print()
-  
+  # samples = [
+  #   #u"^ 下 班 | h o u y i q i c h i f a n",
+  #   #u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
+  #   #u"^ 你 带 钥 匙 | m e i y o u a",
+  #   #u"^ 我 妹 妹 | t a",
+  #   #u"^ 我 弟 弟 | t a",
+  #   #u"^ 我 妈 妈 现 在 在 家 , | t a",
+  #   #u"^ 我 爸 爸 现 在 在 家 , | t a",
+  #   #u"^ 我 叫 | w e n q i n g d a"
+  # ]
+  # for sample_in in samples:
+  #   pprint.pprint(sample_in)
+  #   print(query_once(sample_in))
+  #   print()
+  query("^", "w")
+  query("^", "wo")
+  query("^我", "j")
+  query("^我", "ji")
+  query("^我", "jia")
+  query("^我", "jiao")
+  query(u"^我叫", "w")
+  query(u"^我叫", "we")
+  query(u"^我叫", "wen")
+  query(u"^我叫", "wenq")
+  query(u"^我叫", "wenqi")
+  query(u"^我叫", "wenqin")
+  query(u"^我叫", "wenqing")
+  query(u"^我叫", "wenqingd")
+  query(u"^我叫", "wenqingda")
