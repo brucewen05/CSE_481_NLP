@@ -9,15 +9,16 @@ fi
 corpus_name="$1"
 train_steps="$3"
 data_path="/data"
+vocab_source="${data_path}/vocab/weibo"
+vocab_target="${data_path}/vocab/words_small"
 
 echo "Using corpus: ${corpus_name}"
 echo "Using train steps: ${train_steps}"
 
-vocab_source="${data_path}/vocab/${corpus_name}"
 echo "export VOCAB_SOURCE=${vocab_source}"
 export VOCAB_SOURCE=${vocab_source}
 echo "export VOCAB_TARGET=${vocab_source}"
-export VOCAB_TARGET=${vocab_source}
+export VOCAB_TARGET=${vocab_target}
 
 train_sources="${data_path}/train/${corpus_name}.source"
 echo "export TRAIN_SOURCES=${train_sources}"

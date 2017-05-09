@@ -7,7 +7,7 @@ import inference_handler as s2s
 import beam_search as bs
 import metric
 import argparse
-
+import inference_handler as s2s
 
 def predict(config):
     pprint.pprint(config)
