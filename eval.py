@@ -6,12 +6,15 @@ import pinyin_util as pu
 import beam_search as bs
 import metric
 import argparse
+import inference_handler as s2s
 
 
 def predict(config):
     pprint.pprint(config)
     if config.model == 'bs.ngram_beam_search':
         model_func = bs.ngram_beam_search
+    elif config.model == 's2s':
+        model_func = s2s.query
     else:
         raise NotImplementedError()
 
