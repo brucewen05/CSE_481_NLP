@@ -99,7 +99,7 @@ def extract_triples(paragraph_pairs,
         for cursor in range(1, len(pp[0])):
             for input_window_end in range(cursor + 1, min(cursor + max_input_window + 1, len(pp[0]))):
                 if len([j for i in range(cursor, input_window_end) for j in range(len(pp[0][i]))
-                	if not pp[0][i][j] in all_valid_chars]) > 0:
+                    if not pp[0][i][j] in all_valid_chars]) > 0:
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
                 pinyins = pp[1][cursor:input_window_end]
@@ -236,27 +236,26 @@ def gen_source_target_files(triples, filename):
                         with codecs.open("/data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
                             for tup in triples[:train_size]:
                                 train_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
-                                	" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                    " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 train_target.write(tup[2] + "\n")
                             
                             for tup in triples[train_size:train_size + dev_size]:
                                 dev_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
-                                	" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                    " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 dev_target.write(tup[2] + "\n")
                             
                             for tup in triples[train_size + dev_size:]:
                                 test_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
-                                	" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                    " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
     summary_file = open("/data/data_summary_wordss.txt", "w")
 
     print_and_log("Extracting sms data...")
-
+    pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
     print_and_log("clean")
-    tp = extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False)
-    gen_source_target_files(tp, "sms_clean_words")
+    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean_words")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False), "sms_abbrs_words")
     # print_and_log("typos")
@@ -280,12 +279,12 @@ if __name__ == "__main__":
     # print_and_log("typos")
     # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos_words")
 
-    print_and_log("Extracting wiki data...")
-    pp_wiki = build_parallel_paragraphs_from_txt('/data/wiki.txt')
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean_words")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs_words")
+    # print_and_log("Extracting wiki data...")
+    # pp_wiki = build_parallel_paragraphs_from_txt('/data/wiki.txt')
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean_words")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs_words")
     # print_and_log("typos")
     # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos_words")
 
