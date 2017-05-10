@@ -21,16 +21,21 @@ def predict(config):
     source = load_data(config.test_data_source)[:20000]
     target = load_data(config.test_data_target)[:20000]
     predictions = []
+    ground_truth = []
     index = 0
-    for data in source:
-        if index % 1000 == 0:
+    for truth, data in zip(target, source):
+        if index % 5000 == 0:
             print(index)
+            pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
         data = data.split('|')
         (context, pinyin) = data
         pinyin = pu.segment_with_hint(metric.normalize_text(pinyin))
+       
         prediction = model_func(context.strip(), pinyin)
+        #print(prediction)
         predictions.append(prediction)
+        ground_truth.append(truth)
     pprint.pprint(metric.evaluate(target, predictions, config.k))
 
 
@@ -62,8 +67,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('data', 'test', 'sms_clean.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('data', 'test', 'sms_clean.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'sms_clean.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'sms_clean.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')
