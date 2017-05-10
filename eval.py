@@ -67,8 +67,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'sms_clean.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'sms_clean.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'sms_abbrs.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'sms_abbrs.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')
