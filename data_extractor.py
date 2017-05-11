@@ -238,7 +238,7 @@ def gen_source_target_files(triples, filename):
     # train dev test = 7:1:2
     n = len(triples)
     train_size = int(n * .7)
-    dev_size = int(n * .1)
+    dev_size = min(int(n * .1), 50000)
     test_size = n - train_size - dev_size
     print_and_log("train: " + str(train_size))
     print_and_log("dev: " + str(dev_size))
