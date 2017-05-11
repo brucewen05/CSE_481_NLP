@@ -102,7 +102,7 @@ def extract_triples(paragraph_pairs,
                     if not pp[0][i][j] in all_valid_chars]) > 0:
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
-                pinyins = pp[1][cursor:input_window_end]
+                pinyins = "".join(pp[1][cursor:input_window_end]).split()
                 #print_and_log(pinyins)
                 chars = pp[0][cursor:input_window_end]
 

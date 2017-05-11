@@ -1,7 +1,7 @@
 from inference_handler import query_once
 import codecs
 
-with codecs.open("data/sms_abbrs.source", encoding='utf-8') as f:
+with codecs.open("/data/dev/sms_abbrs.source", encoding='utf-8') as f:
     line = f.readline()
     prediction_result = query_once(line)
     for sublist in prediction_result:
