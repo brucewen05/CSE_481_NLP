@@ -10,7 +10,7 @@ corpus_name="$1"
 train_steps="$3"
 data_path="/data"
 vocab_source="${data_path}/vocab/weibo"
-vocab_target="${data_path}/vocab/words_small"
+vocab_target="${data_path}/vocab/weibo"
 
 echo "Using corpus: ${corpus_name}"
 echo "Using train steps: ${train_steps}"

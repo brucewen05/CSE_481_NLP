@@ -95,7 +95,8 @@ def extract_triples(paragraph_pairs,
         first_n=None,
         min_paragraph_len=6,
         add_abbr=True,
-        add_typo=True,):
+        add_typo=True,
+        pad_front=True):
     # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
@@ -118,6 +119,8 @@ def extract_triples(paragraph_pairs,
                 if not input_window_end in segment_positions:
                     continue
                 context = pp[0][max(0, cursor - context_window):cursor]
+                if pad_front:
+                    context = ["^"] * (context_window - len(context)) + context
                 pinyins = pp[1][cursor:input_window_end]
                 #print_and_log(pinyins)
                 chars = pp[0][cursor:input_window_end]
@@ -238,18 +241,18 @@ def gen_source_target_files(triples, filename):
     # train dev test = 7:1:2
     n = len(triples)
     train_size = int(n * .7)
-    dev_size = int(n * .1)
+    dev_size = min(int(n * .1), 50000)
     test_size = n - train_size - dev_size
     print_and_log("train: " + str(train_size))
     print_and_log("dev: " + str(dev_size))
     print_and_log("test: " + str(test_size))
 
-    with codecs.open("data/train/" + filename + ".source", 'w', encoding='utf-8') as train_source:
-        with codecs.open("data/train/" + filename + ".target", 'w', encoding='utf-8') as train_target:
-            with codecs.open("data/dev/" + filename + ".source", 'w', encoding='utf-8') as dev_source:
-                with codecs.open("data/dev/" + filename + ".target", 'w', encoding='utf-8') as dev_target:
-                    with codecs.open("data/test/" + filename + ".source", 'w', encoding='utf-8') as test_source:
-                        with codecs.open("data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
+    with codecs.open("/data/train/" + filename + ".source", 'w', encoding='utf-8') as train_source:
+        with codecs.open("/data/train/" + filename + ".target", 'w', encoding='utf-8') as train_target:
+            with codecs.open("/data/dev/" + filename + ".source", 'w', encoding='utf-8') as dev_source:
+                with codecs.open("/data/dev/" + filename + ".target", 'w', encoding='utf-8') as dev_target:
+                    with codecs.open("/data/test/" + filename + ".source", 'w', encoding='utf-8') as test_source:
+                        with codecs.open("/data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
                             
                             for tup in triples[:train_size]:
                                 train_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
@@ -264,23 +267,23 @@ def gen_source_target_files(triples, filename):
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
-    summary_file = open("data/data_summary.txt", "w")
+    summary_file = open("/data/data_summary.txt", "w")
 
     print_and_log("Generating vocab...")
 
-    gen_vocab("data/weibo.txt", "data/vocab/weibo")
-    gen_vocab("data/nus_sms_chinese.txt", "data/vocab/sms")
-    gen_vocab("data/wiki.txt", "data/vocab/wiki")
+    # gen_vocab("/data/weibo.txt", "/data/vocab/weibo")
+    # gen_vocab("/data/nus_sms_chinese.txt", "/data/vocab/sms")
+    # gen_vocab("/data/wiki.txt", "/data/vocab/wiki")
 
     print_and_log("Extracting sms data...")
-    pp_sms = build_parallel_paragraphs_from_txt('data/nus_sms_chinese.txt')
+    pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
 
     print_and_log("clean")
     gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False), "sms_abbrs")
-    print_and_log("typos")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
+    # print_and_log("typos")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
 
     print_and_log("Extracting lcmc data...")
     pp_lcmc = build_parallel_paragraphs_lcmc()
@@ -288,25 +291,25 @@ if __name__ == "__main__":
     gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False), "lcmc_clean")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False), "lcmc_abbrs")
-    print_and_log("typos")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
+    # print_and_log("typos")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
 
     print_and_log("Extracting weibo data...")
-    pp_weibo = build_parallel_paragraphs_from_txt('data/weibo.txt')
+    pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
     print_and_log("clean")
     gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False), "weibo_clean")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False), "weibo_abbrs")
-    print_and_log("typos")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
+    # print_and_log("typos")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
 
     print_and_log("Extracting wiki data...")
-    pp_wiki = build_parallel_paragraphs_from_txt('data/wiki.txt')
+    pp_wiki = build_parallel_paragraphs_from_txt('/data/wiki.txt')
     print_and_log("clean")
     gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs")
-    print_and_log("typos")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos")
+    # print_and_log("typos")
+    # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos")
 
     summary_file.close()

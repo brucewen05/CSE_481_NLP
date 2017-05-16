@@ -84,7 +84,8 @@ def extract_triples(paragraph_pairs,
         first_n=None,
         min_paragraph_len=6,
         add_abbr=True,
-        add_typo=True,):
+        add_typo=True,
+        pad_front=True):
     # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
@@ -102,7 +103,10 @@ def extract_triples(paragraph_pairs,
                     if not pp[0][i][j] in all_valid_chars]) > 0:
                     break
                 context = pp[0][max(0, cursor - context_window):cursor]
-                pinyins = pp[1][cursor:input_window_end]
+                if pad_front:
+                    context = ["^"] * (context_window - len(context)) + context
+
+                pinyins = "".join(pp[1][cursor:input_window_end]).split()
                 #print_and_log(pinyins)
                 chars = pp[0][cursor:input_window_end]
 
@@ -222,7 +226,7 @@ def gen_source_target_files(triples, filename):
     # train dev test = 7:1:2
     n = len(triples)
     train_size = int(n * .7)
-    dev_size = int(n * .1)
+    dev_size = min(int(n * .1), 50000)
     test_size = n - train_size - dev_size
     print_and_log("train: " + str(train_size))
     print_and_log("dev: " + str(dev_size))
@@ -254,28 +258,28 @@ if __name__ == "__main__":
 
     print_and_log("Extracting sms data...")
     pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean_words")
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean_words")
     print_and_log("abbrs")
     gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False), "sms_abbrs_words")
     # print_and_log("typos")
     # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos_words")
 
-    print_and_log("Extracting lcmc data...")
-    pp_lcmc = build_parallel_paragraphs_lcmc()
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False), "lcmc_clean_words")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False), "lcmc_abbrs_words")
-    # print_and_log("typos")
-    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos_words")
+    # print_and_log("Extracting lcmc data...")
+    # pp_lcmc = build_parallel_paragraphs_lcmc()
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False), "lcmc_clean_words")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False), "lcmc_abbrs_words")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos_words")
 
-    print_and_log("Extracting weibo data...")
-    pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False), "weibo_clean_words")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False), "weibo_abbrs_words")
+    # print_and_log("Extracting weibo data...")
+    # pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False), "weibo_clean_words")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False), "weibo_abbrs_words")
     # print_and_log("typos")
     # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos_words")
 

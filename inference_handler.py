@@ -101,7 +101,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_words_05_09"
+MODEL_DIR = "/data/model/mixed_abbrs_05_07"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -130,8 +130,8 @@ model(
   },
   labels=None,
   params={
-    "vocab_source": "data/vocab/sms",
-    "vocab_target": "data/vocab/sms"
+    "vocab_source": "data/vocab/weibo",
+    "vocab_target": "data/vocab/weibo"
   }
 )
 
@@ -169,19 +169,19 @@ def query_once(source_tokens):
       source_tokens_ph: [source_tokens],
       source_len_ph: [len(source_tokens)]
     })
-  print(_tokens_to_str(source_tokens))
-  print("============================")
-  print(prediction_dict)
+  #print(_tokens_to_str(source_tokens))
+  #print("============================")
+  #print(prediction_dict)
   predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
-  result_array = sort_and_merge_predictions(predictions_list)
+  #print(predictions_list)
+  # result_array = sort_and_merge_predictions(predictions_list)
   # result_string = []
   # for i in range(0, len(result_array)):
   #   if (result_array[i] != " "):
   #     result_string.append(result_array[i])
-  
   # return result_string
-  print("result array to be returned:", result_array)
-  return result_array
+  #print("result array to be returned:", result_array)
+  return predictions_list
 
 def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     flat_list = []
@@ -192,11 +192,11 @@ def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
         for t in sublist:
           flat_list.append((t[0].replace(" ", ""), t[1]))
 
-    print(flat_list)
+    #print(flat_list)
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
-    print("after sorting:")
-    print(ranked)
-    return [x[0] for x in ranked]
+    #print("after sorting:")
+    #print(ranked)
+    return ranked #[x[0] for x in ranked]
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
@@ -222,18 +222,19 @@ if __name__ == "__main__":
   #   pprint.pprint(sample_in)
   #   print(query_once(sample_in))
   #   print()
-  query("^", "w")
-  query("^", "wo")
-  query("^我", "j")
-  query("^我", "ji")
-  query("^我", "jia")
-  query("^我", "jiao")
-  query(u"^我叫", "w")
-  query(u"^我叫", "we")
-  query(u"^我叫", "wen")
-  query(u"^我叫", "wenq")
-  query(u"^我叫", "wenqi")
-  query(u"^我叫", "wenqin")
-  query(u"^我叫", "wenqing")
-  query(u"^我叫", "wenqingd")
-  query(u"^我叫", "wenqingda")
+  # query("^", "w")
+  # query("^", "wo")
+  # query("^我", "j")
+  # query("^我", "ji")
+  # query("^我", "jia")
+  # query("^我", "jiao")
+  # query(u"^我叫", "w")
+  # query(u"^我叫", "we")
+  # query(u"^我叫", "wen")
+  # query(u"^我叫", "wenq")
+  # query(u"^我叫", "wenqi")
+  # query(u"^我叫", "wenqin")
+  # query(u"^我叫", "wenqing")
+  # query(u"^我叫", "wenqingd")
+  # query(u"^我叫", "wenqingda")
+  query("你还活着啊,奶奶的,", "wanshangguolaihe")
