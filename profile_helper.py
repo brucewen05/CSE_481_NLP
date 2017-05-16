@@ -16,6 +16,3 @@ with codecs.open("/data/dev/sms_abbrs.source", encoding='utf-8') as f:
                 with codecs.open('profile/' + filename, 'a+',encoding='utf-8') as f2:
                     for (chars, prob) in sorted_sublist:
                         f2.write(line + '\t' + chars + '\t' + str(prob) + '\n')
-
-
-

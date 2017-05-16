@@ -45,7 +45,7 @@ def build_parallel_paragraphs_lcmc():
         p = re.sub(r'([a-z]+)[0-9] *', r' \1 ', tup[0])
         p = re.sub(r'([^a-z\| ])', r' \1 ', p)
         # fix "uu"=>"v" in lcmc pinyin
-        p = re.sub(r'uu', r'v', p)        
+        p = re.sub(r'uu', r'v', p)
         pinyin_paragraphs.append(p.split('|'))
 
     assert len(char_paragraphs) == len(pinyin_paragraphs)
@@ -64,7 +64,7 @@ def build_parallel_paragraphs_from_txt(filename, debug=False):
 
     lines = [x.strip() for x in lines]
     lines = sorted(list(set(lines)))
-    
+
     for i in range(len(lines)):
         parts = lines[i].split(' ==> ')
         if len(parts) == 2:
@@ -75,7 +75,7 @@ def build_parallel_paragraphs_from_txt(filename, debug=False):
             pinyin_paragraphs.append(p.split('|'))
     return list(zip(char_paragraphs, pinyin_paragraphs))
 
-    
+
 # min_paragraph_len includes "^"
 # first_n: only extract the first n triples
 def extract_triples(paragraph_pairs,
@@ -136,7 +136,7 @@ def generate_abbreviation_noise(pinyins, prob):
     all the tokens in the result array and then splitting
     it again using segment_with_hint() function in pinyin_uitl.py,
     the size of the array after splitting is the same as the original
-    'pinyins' array. 
+    'pinyins' array.
     i.e. the situation where the pinyins array is
     ["tian", "an", "men"] and the result array is
     ["t", "a", "m"] is not possible since when combining
@@ -147,8 +147,8 @@ def generate_abbreviation_noise(pinyins, prob):
     results = []
     for pinyin_token in pinyins:
         abbreviation = pinyin_token[0:2]
-        if (abbreviation != "zh" 
-            and abbreviation != "ch" 
+        if (abbreviation != "zh"
+            and abbreviation != "ch"
             and abbreviation != "sh"):
             abbreviation = pinyin_token[0]
         results.append(abbreviation)
@@ -161,7 +161,7 @@ def generate_abbreviation_noise(pinyins, prob):
     # print_and_log("abbreviation array:", results)
     segment_results_result = pu.segment_with_hint("".join(results))
     segment_original_result = pu.segment_with_hint("".join(pinyins))
-    
+
     # print_and_log("segmentation result for noisy result:", segment_results_result)
     # print_and_log("segmentation result for orignal array:", segment_original_result)
     if (len(segment_results_result) == len(segment_original_result)):
@@ -170,7 +170,7 @@ def generate_abbreviation_noise(pinyins, prob):
         for i in range(0, len(results)):
             if (pinyins[i] != results[i]):
                 return results
-    
+
     return None
 
 
@@ -242,12 +242,12 @@ def gen_source_target_files(triples, filename):
                                 train_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
                                     " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 train_target.write(tup[2] + "\n")
-                            
+
                             for tup in triples[train_size:train_size + dev_size]:
                                 dev_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
                                     " ".join(list("".join(tup[1].split(" ")))) + "\n")
                                 dev_target.write(tup[2] + "\n")
-                            
+
                             for tup in triples[train_size + dev_size:]:
                                 test_source.write(" ".join(list("".join(tup[0].split(" ")))) + " | " +
                                     " ".join(list("".join(tup[1].split(" ")))) + "\n")
