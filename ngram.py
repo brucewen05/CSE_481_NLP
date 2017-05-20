@@ -1,10 +1,8 @@
 import sqlite3
 import time
-import operator
 import pickle
 from nltk import ngrams
 from collections import Counter
-from random import shuffle
 
 from sys import argv, stdin, exit
 
@@ -48,6 +46,10 @@ def train(training_filename, output_filename):
             dictionary[pinyin[:-1]].add(list(phrase)[index - 1])
         except KeyError:
             dictionary[pinyin[:-1]] = set(list(phrase)[index - 1])
+        try:
+            dictionary[pinyin[:1]].add(list(phrase)[index - 1])
+        except KeyError:
+            dictionary[pinyin[:1]] = set(list(phrase)[index - 1])
     print("Finish training: ", time.time() - start_time)
     conn.close()
     training_result = (unigram_dict, bigram_dict, dictionary)
