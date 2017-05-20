@@ -130,8 +130,8 @@ model(
   },
   labels=None,
   params={
-    "vocab_source": "data/vocab/weibo",
-    "vocab_target": "data/vocab/weibo"
+    "vocab_source": "/data/vocab/mixed_abbrs",
+    "vocab_target": "/data/vocab/mixed_abbrs"
   }
 )
 
@@ -169,30 +169,27 @@ def query_once(source_tokens):
       source_tokens_ph: [source_tokens],
       source_len_ph: [len(source_tokens)]
     })
-  #print(_tokens_to_str(source_tokens))
-  #print("============================")
-  #print(prediction_dict)
+  
   predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
-  #print(predictions_list)
-  # result_array = sort_and_merge_predictions(predictions_list)
-  # result_string = []
-  # for i in range(0, len(result_array)):
-  #   if (result_array[i] != " "):
-  #     result_string.append(result_array[i])
-  # return result_string
-  #print("result array to be returned:", result_array)
-  return predictions_list
+  print("all result:")
+  print(predictions_list)
+  result = sort_and_merge_predictions(predictions_list)
+  print("result to be returned:")
+  print(result)
+  return result
 
 def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     flat_list = []
-    for sublist in predictions_list:
-        # t is the tuple with format: ("chars", prob)
-        # and since "chars" may contain white spaces, we need
-        # to get rid of them
-        for t in sublist:
-          flat_list.append((t[0].replace(" ", ""), t[1]))
-
-    #print(flat_list)
+    num_keep = 1
+    for sublist in reversed(predictions_list):
+      ranked_sublist = sorted(sublist, key=lambda x: x[1], reverse=True)[:num_keep]
+      num_keep = num_keep + 1
+      if (num_keep > cutoff):
+        num_keep = cutoff
+      for t in ranked_sublist:
+        flat_list.append((t[0].replace(" ", ""), t[1]))
+    print("flat list before sorting:")
+    print(flat_list)
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
     #print("after sorting:")
     #print(ranked)
@@ -202,26 +199,26 @@ def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
-  #print("------------", context + " | " + pinyins)
+  print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
-  # samples = [
-  #   #u"^ 下 班 | h o u y i q i c h i f a n",
-  #   #u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
-  #   #u"^ 你 带 钥 匙 | m e i y o u a",
-  #   #u"^ 我 妹 妹 | t a",
-  #   #u"^ 我 弟 弟 | t a",
-  #   #u"^ 我 妈 妈 现 在 在 家 , | t a",
-  #   #u"^ 我 爸 爸 现 在 在 家 , | t a",
-  #   #u"^ 我 叫 | w e n q i n g d a"
-  # ]
-  # for sample_in in samples:
-  #   pprint.pprint(sample_in)
-  #   print(query_once(sample_in))
-  #   print()
+  samples = [
+     u"^ 下 班 | h o u y i q i c h i f a n",
+     u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
+     u"^ 你 带 钥 匙 | m e i y o u a",
+     u"^ 我 妹 妹 | t a",
+     u"^ 我 弟 弟 | t a",
+     u"^ 我 妈 妈 现 在 在 家 , | t a",
+     u"^ 我 爸 爸 现 在 在 家 , | t a",
+     u"^ 我 叫 | w e n q i n g d a"
+  ]
+  for sample_in in samples:
+     pprint.pprint(sample_in)
+     print(query_once(sample_in))
+     print()
   # query("^", "w")
   # query("^", "wo")
   # query("^我", "j")
@@ -236,5 +233,5 @@ if __name__ == "__main__":
   # query(u"^我叫", "wenqin")
   # query(u"^我叫", "wenqing")
   # query(u"^我叫", "wenqingd")
-  # query(u"^我叫", "wenqingda")
-  query("你还活着啊,奶奶的,", "wanshangguolaihe")
+  #query(u"^我叫", "wenqingda")
+  #query(u"^下班", "houyiqichifan")

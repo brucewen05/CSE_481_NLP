@@ -8,7 +8,7 @@ fi
 
 # source the setup.sh using the passed-in arguments to this script
 source setup.sh
-model_dir="/data/model/${1}_`date +%m_%d`"
+model_dir="/data/model/${1}_`date +%m_%d_multiencoder_dualatt`"
 
 if [ -d ${model_dir} ]
 then
