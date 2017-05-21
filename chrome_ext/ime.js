@@ -34,9 +34,7 @@ $(document).ready(function() {
         key = event.key;
         if (/^[a-z]$/.test(key)) {
             event.preventDefault();
-            buffer(key);
-            reloadPredictions(getContextWindow(inputElement), imeInput.text());
-            setChoiceElemsInPage();
+            buffer(key, inputElement);
             imeBox.show();
             return;
         }
@@ -70,9 +68,10 @@ $(document).ready(function() {
         output(inputElement, choices[curPageStart + index - 1])
     }
 
-    function buffer(txt) {
+    function buffer(txt, inputElement) {
         imeInput.text(imeInput.text() + txt);
-        reloadPredictions()
+        reloadPredictions(getContextWindow(inputElement), imeInput.text());
+        setChoiceElemsInPage();
     }
 
     function output(inputElement, txt) {
@@ -102,7 +101,7 @@ $(document).ready(function() {
 
     function reloadPredictions(context, pinyin) {
         console.log("query " + context + "|" + pinyin);
-        // TODO: query backend
+        // TODO: query backend; handle data race
         choices = ["自然", "孜然", "自燃", "字", "子"];
     }
 
