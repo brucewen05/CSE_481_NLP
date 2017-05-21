@@ -1,6 +1,6 @@
 import sqlite3
 
-connection = sqlite3.connect('data/lcmc.db3')
+connection = sqlite3.connect('/data/lcmc.db3')
 cursor = connection.cursor()
 
 def get_char_paragraphs():

@@ -12,7 +12,7 @@ model_params:
       cell_params:
         num_units: 512
       dropout_input_keep_prob: 1.0
-      dropout_output_keep_prob: 1.0
+      dropout_output_keep_prob: 0.95
       num_layers: 3
   decoder.class: seq2seq.decoders.AttentionDecoder
   decoder.params:
@@ -21,7 +21,7 @@ model_params:
       cell_params:
         num_units: 512
       dropout_input_keep_prob: 1.0
-      dropout_output_keep_prob: 1.0
+      dropout_output_keep_prob: 0.95
       num_layers: 3
   optimizer.name: Adam
   optimizer.params:

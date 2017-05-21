@@ -8,6 +8,8 @@
 /data/test/*
 /data/dev/*
 /data/vocab/*
+/predictions
+/profile
 __pycache__/
 *~
 model/

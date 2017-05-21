@@ -127,6 +127,9 @@ class BidirectionalRNNEncoder(Encoder):
     }
 
   def encode(self, inputs, sequence_length, **kwargs):
+
+    print("\n--------------------------\ninputs to encode\n" + str(inputs) + "\n\n")
+
     scope = tf.get_variable_scope()
     scope.set_initializer(tf.random_uniform_initializer(
         -self.params["init_scale"],
@@ -145,10 +148,72 @@ class BidirectionalRNNEncoder(Encoder):
     # Concatenate outputs and states of the forward and backward RNNs
     outputs_concat = tf.concat(outputs, 2)
 
+    print("\noutput state tensor\n" +str(outputs_concat)+ "\n\n")
+    print("\nfinal state tensor\n"+str(states)+"\n\n" )
+
     return EncoderOutput(
         outputs=outputs_concat,
         final_state=states,
         attention_values=outputs_concat,
+        attention_values_length=sequence_length)
+
+class MultiBidirectionalRNNEncoder(Encoder):
+  def __init__(self, params, mode, name="bidi_rnn_encoder"):
+    super(MultiBidirectionalRNNEncoder, self).__init__(params, mode, name)
+    self.params["rnn_cell"] = _toggle_dropout(self.params["rnn_cell"], mode)
+
+  @staticmethod
+  def default_params():
+    return {
+        "rnn_cell": _default_rnn_cell_params(),
+        "init_scale": 0.04,
+    }
+
+  def encode(self, inputs, sequence_length, **kwargs):
+    CONTEXT_SIZE = 10
+    inputs_c = tf.slice(inputs, [0, 0, 0], [-1, CONTEXT_SIZE, -1])
+    inputs_p = tf.slice(inputs, [0, CONTEXT_SIZE, 0], [-1, -1, -1])
+
+    with tf.variable_scope("encoder_c"):
+      scope = tf.get_variable_scope()
+      scope.set_initializer(tf.random_uniform_initializer(
+          -self.params["init_scale"],
+          self.params["init_scale"]))
+      cell_fw_c = training_utils.get_rnn_cell(**self.params["rnn_cell"])
+      cell_bw_c = training_utils.get_rnn_cell(**self.params["rnn_cell"])
+      outputs_c, states_c = tf.nn.bidirectional_dynamic_rnn(
+          cell_fw=cell_fw_c,
+          cell_bw=cell_bw_c,
+          inputs=inputs_c,
+          sequence_length=sequence_length,
+          dtype=tf.float32,
+          **kwargs)
+    
+    with tf.variable_scope("encoder_p"):
+      scope = tf.get_variable_scope()
+      scope.set_initializer(tf.random_uniform_initializer(
+          -self.params["init_scale"],
+          self.params["init_scale"]))
+      cell_fw_p = training_utils.get_rnn_cell(**self.params["rnn_cell"])
+      cell_bw_p = training_utils.get_rnn_cell(**self.params["rnn_cell"])
+      outputs_p, states_p = tf.nn.bidirectional_dynamic_rnn(
+          cell_fw=cell_fw_p,
+          cell_bw=cell_bw_p,
+          inputs=inputs_p,
+          sequence_length=sequence_length,
+          dtype=tf.float32,
+          **kwargs)
+
+    # Concatenate outputs and states of the forward and backward RNNs
+    outputs_concat_c = tf.concat(outputs_c, 2)
+    outputs_concat_p = tf.concat(outputs_p, 2)
+
+    final_output = tf.concat([outputs_concat_c, outputs_concat_p], 1)
+    final_states = states_c + states_p
+    return EncoderOutput(
+        outputs=final_output,
+        final_state=final_states,
+        attention_values=final_output,
         attention_values_length=sequence_length)
 
 

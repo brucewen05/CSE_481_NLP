@@ -8,6 +8,11 @@ import beam_search as bs
 import metric
 import argparse
 import inference_handler as s2s
+import ngram as ng
+
+unigram_dict = {}
+bigram_dict = {}
+dictionary = {}
 
 def predict(config):
     pprint.pprint(config)
@@ -18,24 +23,25 @@ def predict(config):
     else:
         raise NotImplementedError()
 
-    source = load_data(config.test_data_source)[:20000]
-    target = load_data(config.test_data_target)[:20000]
+    source = load_data(config.test_data_source)
+    target = load_data(config.test_data_target)
     predictions = []
     ground_truth = []
     index = 0
     for truth, data in zip(target, source):
-        if index % 5000 == 0:
+        if index % 10 == 0:
             print(index)
             pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
         data = data.split('|')
         (context, pinyin) = data
         pinyin = pu.segment_with_hint(metric.normalize_text(pinyin))
-       
-        prediction = model_func(context.strip(), pinyin)
-        #print(prediction)
-        predictions.append(prediction)
-        ground_truth.append(truth)
+        try:
+            prediction = model_func(context.strip(), pinyin)
+            predictions.append(prediction)
+            ground_truth.append(truth)
+        except KeyError:
+            pass
     pprint.pprint(metric.evaluate(target, predictions, config.k))
 
 
@@ -67,8 +73,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'sms_abbrs.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'sms_abbrs.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'weibo_abbrs.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'weibo_abbrs.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')
@@ -79,5 +85,5 @@ if __name__ == "__main__":
     parser = get_parser()
     config = parser.parse_args()
     predict(config)
-
+    unigram_dcit, bigram_dict, dictionary = ng.load_model("models/ngrams_model")
 
