@@ -22,7 +22,7 @@ def getPrediction():
     # since it is a string already
     # TODO: figure out a way to swap model easily
     predicted_result = ih.query(request.args.get('prev-chars'), 
-                                            json.loads(request.args.get('pinyin-tokens')))
+                                            request.args.get('pinyin-tokens'))
     ret_data = { "value": predicted_result }
     return jsonify(ret_data)
 
