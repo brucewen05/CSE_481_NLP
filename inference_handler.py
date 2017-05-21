@@ -7,6 +7,7 @@ from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
 from ngram import load_model as load_ngram_model
+import eval as evaluation
 
 
 class DecodeOnce(InferenceTask):
@@ -44,8 +45,13 @@ class DecodeOnce(InferenceTask):
     for fetches in unbatch_dict(fetches_batch):
       # Convert to unicode
       fetches["predicted_tokens"] = np.char.decode(
-          fetches["predicted_tokens"].astype("S"), "utf-8")
+      fetches["predicted_tokens"].astype("S"), "utf-8")
       predicted_tokens = fetches["predicted_tokens"]
+      #print(predicted_tokens)
+      #self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
+      #self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
+      #self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
+      #self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
 
       self._beam_accum["predicted_ids"] = [fetches["beam_search_output.predicted_ids"]]
       self._beam_accum["beam_parent_ids"] = [fetches["beam_search_output.beam_parent_ids"]]
@@ -53,61 +59,105 @@ class DecodeOnce(InferenceTask):
       self._beam_accum["log_probs"] = [fetches["beam_search_output.log_probs"]]
       
       def beam_search_traceback(i, cur_id):
-        if i == 0: return np.array([])
+        if i <= 0: return np.array([])
         else:
           cur_prediction = predicted_tokens[i-1:i,cur_id]
           parent_id = self._beam_accum["beam_parent_ids"][0][i-1][cur_id]
-          return np.append(beam_search_traceback(i-1, parent_id), cur_prediction)
+          return np.append(beam_search_traceback(i - 1, parent_id), cur_prediction)
 
       # If we're using beam search we take the first beam
-      # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
-        beam_search_predicted_tokens = []
-        seq_len = predicted_tokens.shape[0]
-        beam_width = predicted_tokens.shape[1]
+        # <<<<<<< Updated upstream
+        # beam_search_predicted_tokens = []
+        # seq_len = predicted_tokens.shape[0]
+        # beam_width = predicted_tokens.shape[1]
   
-        for length in range(1, seq_len):
-          prediction_per_len = []
-          for k in range(0, min(beam_width, self.top_k)):
-            pred_tokens_k  = beam_search_traceback(length, k)
+        # for length in range(1, seq_len):
+        #   prediction_per_len = []
+        #   for k in range(0, min(beam_width, self.top_k)):
+        #     pred_tokens_k  = beam_search_traceback(length, k)
 
-            # bigram score P(char_cur|char_prev)
-            bigram_score = 0
-            char_cur = predicted_tokens[length-1, k]
-            if char_cur == "SEQUENCE_END":
-              char_cur = "^"
-            else:
-              char_cur = char_cur[0]
+        #     # bigram score P(char_cur|char_prev)
+        #     bigram_score = 0
+        #     char_cur = predicted_tokens[length-1, k]
+        #     if char_cur == "SEQUENCE_END":
+        #       char_cur = "^"
+        #     else:
+        #       char_cur = char_cur[0]
 
-            char_parent_id = self._beam_accum["beam_parent_ids"][0][length-1][k]
-            char_prev = predicted_tokens[length - 2,char_parent_id]
-            if char_prev == "SEQUENCE_END":
-              char_prev = "^"
-            else:
-              char_prev = char_prev[len(char_prev) - 1]
+        #     char_parent_id = self._beam_accum["beam_parent_ids"][0][length-1][k]
+        #     char_prev = predicted_tokens[length - 2,char_parent_id]
+        #     if char_prev == "SEQUENCE_END":
+        #       char_prev = "^"
+        #     else:
+        #       char_prev = char_prev[len(char_prev) - 1]
             
-            try:
-              bigram_score = (bigram_dict[(char_prev, char_cur)]+1) / float(unigram_dict[(char_prev)] + len(dictionary.keys()))
-            except KeyError:
-              bigram_score = 1 / float(len(dictionary.keys()))
+        #     try:
+        #       bigram_score = (bigram_dict[(char_prev, char_cur)]+1) / float(unigram_dict[(char_prev)] + len(dictionary.keys()))
+        #     except KeyError:
+        #       bigram_score = 1 / float(len(dictionary.keys()))
             
-            prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
+        #     prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
 
-            if not _arreq_in_list(pred_tokens_k, prediction_per_len):
-              prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-          beam_search_predicted_tokens.append(prediction_per_len)
+        #     if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+        #       prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
+        #   beam_search_predicted_tokens.append(prediction_per_len)
 
-        predicted_tokens = beam_search_predicted_tokens
-      
+        # predicted_tokens = beam_search_predicted_tokens
+      #================================================================
+        #predicted_tokens = predicted_tokens[:, 0]
+        try:
+          beam_search_predicted_tokens = []
+          seq_len = predicted_tokens.shape[0]
+          beam_width = predicted_tokens.shape[1]
+        #print(predicted_tokens, self._beam_accum["log_probs"][0])
+          for length in range(1, seq_len):
+            prediction_per_len = []
+            for k in range(0, min(beam_width, self.top_k)):
+              pred_tokens_k  = beam_search_traceback(length, k)
+              # bigram score P(char_cur|char_prev)
+              bigram_score = 0
+              #char_cur = predicted_tokens[length-1, k]
+              #char_parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
+              #char_prev = predicted_tokens[length - 2, char_parent_id]
+
+              #if char_cur == "SEQUENCE_END":
+                #char_cur = "^"
+              #else:
+                #char_cur = char_cur[0]
+              #if char_prev == "SEQUENCE_END":
+                #char_prev = "^"
+              #else:
+                #char_prev = char_prev[len(char_prev) - 1]
+              #try:
+                  #bigram_score = (evaluation.bigram_dict[(char_prev, char_cur)]+1) / float(evaluation.unigram_dict[(char_prev)] + len(dictionary.keys()))
+              #except KeyError:
+                  #bigram_score = 1 / float(len(dictionary.keys()))
+              # print(char_prev, char_cur, round(bigram_score, 4))
+
+              prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k] + bigram_score
+              if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+                prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
+            beam_search_predicted_tokens.append(prediction_per_len)
+          predicted_tokens = beam_search_predicted_tokens
+        except IndexError as e:
+          logging.exception("")
+          print(self._beam_accum)
+          print(predicted_tokens)
+          predicted_tokens = []
+          print("parents dim", np.ndim(self._beam_accum["beam_parent_ids"]))
+          print("predicted tokends dim", np.ndim(predicted_tokens))
+          #>>>>>>> Stashed changes
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
       source_tokens = fetches["features.source_tokens"]
-      
       self.callback_func(source_tokens, predicted_tokens)
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_07"
+
+MODEL_DIR = "/data/model/mixed_abbrs_05_20"
+
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -136,6 +186,7 @@ model(
   },
   labels=None,
   params={
+
     "vocab_source": "/data/vocab/mixed_abbrs",
     "vocab_target": "/data/vocab/mixed_abbrs"
   }
