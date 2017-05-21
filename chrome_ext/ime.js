@@ -103,7 +103,7 @@ $(document).ready(function() {
         console.log("query " + context + "|" + pinyin);
         $.ajax({
             type: "GET",
-            url: SCRIPT_ROOT + "/predict/",
+            url: SERVER_ADDR + "/predict/",
             contentType: "application/json; charset=utf-8",
             data: { "prev-chars": context, 
                     "pinyin-tokens":  pinyin },

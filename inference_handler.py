@@ -8,6 +8,7 @@ import pprint
 import logging
 from ngram import load_model as load_ngram_model
 
+
 class DecodeOnce(InferenceTask):
   '''
   Similar to tasks.DecodeText, but for one input only.
