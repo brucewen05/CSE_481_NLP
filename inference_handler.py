@@ -6,6 +6,7 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
+from ngram import load_model as load_ngram_model
 
 class DecodeOnce(InferenceTask):
   '''
@@ -45,15 +46,10 @@ class DecodeOnce(InferenceTask):
           fetches["predicted_tokens"].astype("S"), "utf-8")
       predicted_tokens = fetches["predicted_tokens"]
 
-      self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
-      self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
-      self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
-      self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
-
- #     print("\n\n")
-#      print(self._beam_accum)
-      #print(predicted_tokens)
-#      print("\n\n")
+      self._beam_accum["predicted_ids"] = [fetches["beam_search_output.predicted_ids"]]
+      self._beam_accum["beam_parent_ids"] = [fetches["beam_search_output.beam_parent_ids"]]
+      self._beam_accum["scores"] = [fetches["beam_search_output.scores"]]
+      self._beam_accum["log_probs"] = [fetches["beam_search_output.log_probs"]]
       
       def beam_search_traceback(i, cur_id):
         if i == 0: return np.array([])
@@ -65,24 +61,42 @@ class DecodeOnce(InferenceTask):
       # If we're using beam search we take the first beam
       # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
-        #predicted_tokens = predicted_tokens[:, 0]
-        try:
-          beam_search_predicted_tokens = []
-          seq_len = predicted_tokens.shape[0]
-          beam_width = predicted_tokens.shape[1]
-        #print(predicted_tokens, self._beam_accum["log_probs"][0])
-          for length in range(1, seq_len):
-            prediction_per_len = []
-            for k in range(0, min(beam_width, self.top_k)):
-              pred_tokens_k  = beam_search_traceback(length, k)
-              prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
-              if not _arreq_in_list(pred_tokens_k, prediction_per_len):
-                prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-            beam_search_predicted_tokens.append(prediction_per_len)
-          predicted_tokens = beam_search_predicted_tokens
-        except IndexError as e:
-          predicted_tokens = []
-          logging.exception("")
+        beam_search_predicted_tokens = []
+        seq_len = predicted_tokens.shape[0]
+        beam_width = predicted_tokens.shape[1]
+  
+        for length in range(1, seq_len):
+          prediction_per_len = []
+          for k in range(0, min(beam_width, self.top_k)):
+            pred_tokens_k  = beam_search_traceback(length, k)
+
+            # bigram score P(char_cur|char_prev)
+            bigram_score = 0
+            char_cur = predicted_tokens[length-1, k]
+            if char_cur == "SEQUENCE_END":
+              char_cur = "^"
+            else:
+              char_cur = char_cur[0]
+
+            char_parent_id = self._beam_accum["beam_parent_ids"][0][length-1][k]
+            char_prev = predicted_tokens[length - 2,char_parent_id]
+            if char_prev == "SEQUENCE_END":
+              char_prev = "^"
+            else:
+              char_prev = char_prev[len(char_prev) - 1]
+            
+            try:
+              bigram_score = (bigram_dict[(char_prev, char_cur)]+1) / float(unigram_dict[(char_prev)] + len(dictionary.keys()))
+            except KeyError:
+              bigram_score = 1 / float(len(dictionary.keys()))
+            
+            prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
+
+            if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+              prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
+          beam_search_predicted_tokens.append(prediction_per_len)
+
+        predicted_tokens = beam_search_predicted_tokens
       
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
@@ -92,7 +106,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "model/mixed_abbrs_05_04"
+MODEL_DIR = "/data/model/mixed_abbrs_05_07"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -121,8 +135,8 @@ model(
   },
   labels=None,
   params={
-    "vocab_source": "data/vocab/sms",
-    "vocab_target": "data/vocab/sms"
+    "vocab_source": "/data/vocab/mixed_abbrs",
+    "vocab_target": "/data/vocab/mixed_abbrs"
   }
 )
 
@@ -160,56 +174,71 @@ def query_once(source_tokens):
       source_tokens_ph: [source_tokens],
       source_len_ph: [len(source_tokens)]
     })
-  print(_tokens_to_str(source_tokens))
-  print("============================")
-  print(prediction_dict)
-  predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
-  result_array = sort_and_merge_predictions(predictions_list)
-  # result_string = []
-  # for i in range(0, len(result_array)):
-  #   if (result_array[i] != " "):
-  #     result_string.append(result_array[i])
   
-  # return result_string
-  print("result array to be returned:", result_array)
-  return result_array
+  predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
+  print("all result:")
+  print(predictions_list)
+  result = sort_and_merge_predictions(predictions_list)
+  print("result to be returned:")
+  print(result)
+  return result
 
 def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     flat_list = []
-    for sublist in predictions_list:
-        # t is the tuple with format: ("chars", prob)
-        # and since "chars" may contain white spaces, we need
-        # to get rid of them
-        for t in sublist:
-          flat_list.append((t[0].replace(" ", ""), t[1]))
-
+    num_keep = 1
+    for sublist in reversed(predictions_list):
+      ranked_sublist = sorted(sublist, key=lambda x: x[1], reverse=True)[:num_keep]
+      num_keep = num_keep + 1
+      if (num_keep > cutoff):
+        num_keep = cutoff
+      for t in ranked_sublist:
+        flat_list.append((t[0].replace(" ", ""), t[1]))
+    print("flat list before sorting:")
     print(flat_list)
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
-    print("after sorting:")
-    print(ranked)
-    return [x[0] for x in ranked]
+    #print("after sorting:")
+    #print(ranked)
+    return ranked #[x[0] for x in ranked]
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
-  #print("------------", context + " | " + pinyins)
+  print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
   samples = [
-    u"^ 下 班 | h o u y i q i c h i f a n",
-    u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
-    u"^ 你 带 钥 匙 | m e i y o u a",
-    u"^ 我 妹 妹 | t a",
-    u"^ 我 弟 弟 | t a",
-    u"^ 我 妈 妈 现 在 在 家 , | t a",
-    u"^ 我 爸 爸 现 在 在 家 , | t a",
+     u"^ 下 班 | h o u y i q i c h i f a n",
+     u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",
+     u"^ 你 带 钥 匙 | m e i y o u a",
+     u"^ 我 妹 妹 | t a",
+     u"^ 我 弟 弟 | t a",
+     u"^ 我 妈 妈 现 在 在 家 , | t a",
+     u"^ 我 爸 爸 现 在 在 家 , | t a",
+     u"^ 我 叫 | w e n q i n g d a"
   ]
-  for sample_in in samples:
-    pprint.pprint(sample_in)
-    print(query_once(sample_in))
-    print()
+  unigram_dict, bigram_dict, dictionary = load_ngram_model("model/ngrams_model")
   
+  for sample_in in samples:
+     pprint.pprint(sample_in)
+     print(query_once(sample_in))
+     print()
+  # query("^", "w")
+  # query("^", "wo")
+  # query("^我", "j")
+  # query("^我", "ji")
+  # query("^我", "jia")
+  # query("^我", "jiao")
+  # query(u"^我叫", "w")
+  # query(u"^我叫", "we")
+  # query(u"^我叫", "wen")
+  # query(u"^我叫", "wenq")
+  # query(u"^我叫", "wenqi")
+  # query(u"^我叫", "wenqin")
+  # query(u"^我叫", "wenqing")
+  # query(u"^我叫", "wenqingd")
+  #query(u"^我叫", "wenqingda")
+  #query(u"^下班", "houyiqichifan")

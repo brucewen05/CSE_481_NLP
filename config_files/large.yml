@@ -3,7 +3,7 @@ model_params:
   attention.class: seq2seq.decoders.attention.AttentionLayerBahdanau
   attention.params:
     num_units: 512
-  bridge.class: seq2seq.models.bridges.ZeroBridge
+  bridge.class: seq2seq.models.bridges.InitialStateBridge
   embedding.dim: 512
   encoder.class: seq2seq.encoders.BidirectionalRNNEncoder
   encoder.params:
@@ -13,7 +13,7 @@ model_params:
         num_units: 512
       dropout_input_keep_prob: 0.8
       dropout_output_keep_prob: 1.0
-      num_layers: 2
+      num_layers: 4
   decoder.class: seq2seq.decoders.AttentionDecoder
   decoder.params:
     rnn_cell:

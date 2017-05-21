@@ -105,11 +105,11 @@ $("#raw-input").on("keyup", function(e) {
                     // second ajax call to get the predicted result
                     console.log("token data:", token_data.value)
                     console.log("prev_chars:", split_result.prev_chars)
-		    split_result.prev_chars = "^" + split_result.prev_chars;
-		    
-		    $.ajax({
+
+        		    split_result.prev_chars = "^" + split_result.prev_chars;       		    
+        		    $.ajax({
                         type: "GET",
-                        url: SCRIPT_ROOT + "/predict/",
+                        url: SCRIPT_ROOT + "/fake-predict/",
                         contentType: "application/json; charset=utf-8",
                         data: { "prev-chars": split_result.prev_chars, 
                                 "pinyin-tokens":  JSON.stringify(token_data.value) },
