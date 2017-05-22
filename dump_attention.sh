@@ -4,7 +4,7 @@ python3 -m bin.infer \
     - class: DumpAttention
       params:
         output_dir: predictions/attention" \
-  --model_dir /data/model/mixed_abbrs_05_18_multiencoder_fix \
+  --model_dir /data/model/mixed_abbrs_05_21_conv \
   --input_pipeline "
     class: ParallelTextInputPipeline
     params:

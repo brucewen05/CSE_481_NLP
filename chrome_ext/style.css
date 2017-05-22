@@ -1,0 +1,50 @@
+/* Use material design colors */
+
+#ime_box {
+	border: 1px solid #bdbdbd;
+	background: #fff;
+	box-shadow: 2px 3px #f5f5f5;
+	padding: 4px 6px;
+	min-width: 200px;
+	position: fixed;
+	z-index: 10000;
+	font-size: 18px;
+}
+
+#ime_input_box {
+	border-bottom: 2px solid #eeeeee;
+	padding: 1px 0 2px 0;
+}
+
+#ime_input {
+	padding: 0 1px 0 3px;
+	margin: 2px 0 2px 0;
+	border-right: 2px solid #90caf9;
+}
+
+#ime_list, #ime_ops {
+	margin: 5px 0 1px 0;
+	display: inline-block;
+}
+
+#ime_ops {
+	float: right;
+	margin-left: 5px;
+	color: #757575;
+	font-size: 16px;
+}
+
+#ime_list span, #ime_ops span {
+	padding: 2px 3px;
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+#ime_list span:hover, #ime_ops span:hover {
+	background-color: #f5f5f5;
+}
+
+#ime_list .ime_choice:first-child {
+	background-color: #e3f2fd;
+}
+

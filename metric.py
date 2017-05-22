@@ -61,14 +61,36 @@ def evaluate(target, predictions, k):
 
     lens = {}
     for data, prediction in zip(target, predictions):
-        length = len(data.split()) - 1  # len of input. TODO: better way to get len of input
+        #length_word = len(data.split()) - 1  # len of input. TODO: better way to get len of input
+        sort_predictions = [[] for i in range(5)]
+        for pred_per_len in prediction:
+            for p in pred_per_len:
+                words = p[0].split()
+                try:
+                    words.remove("UNK")
+                except ValueError:
+                    pass
+                word = "".join(words)
+                
+                try:
+                    sort_predictions[len(word) - 1].append(p)
+                except IndexError:
+                    pass
+        prediction = sort_predictions
+        length = -1
+        for word in data.split():
+            length += len(word)
         ground_truth = data.strip()
+        ground_truth = "".join(ground_truth.split())
+        if length > 3:
+            print(ground_truth)
+            print(prediction)
         try:
             lens[length] += 1
         except KeyError:
             lens[length] = 1
         try:
-            prediction = [p[0] for p in prediction[length]]
+            prediction = ["".join(p[0].split()) for p in prediction[length]]
             for fn in metric_fn:
                 try:
                     scores[fn.__name__ + '_len=' + str(length)] += fn(prediction, ground_truth)
@@ -82,7 +104,7 @@ def evaluate(target, predictions, k):
                     scores[fn.__name__ + '_len=' + str(length)] = 0
     
     
-    scores = {fn: round(100.0 * score / lens[int(fn.split('=')[-1])], 4) for fn, score in scores.items()}
+    scores = {fn: round(100.0 * score / lens[int(fn.split('=')[-1])], 2) for fn, score in scores.items()}
     return scores
 
 

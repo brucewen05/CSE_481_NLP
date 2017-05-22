@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+
+  "name": "Very Natural IME",
+  "description": "This extension enables Chinese character input by pinyin in web pages.",
+  "version": "0.0",
+
+  "browser_action": {
+  },
+
+  "content_scripts": [ {
+      "js": ["jquery-1.12.4.min.js", "ime.js"],
+      "matches": ["<all_urls>"],
+      "css": ["style.css"]
+  }],
+  
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/"
+  ]
+}

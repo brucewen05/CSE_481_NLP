@@ -8,6 +8,7 @@ import pprint
 import logging
 import eval as ev
 
+
 class DecodeOnce(InferenceTask):
   '''
   Similar to tasks.DecodeText, but for one input only.
@@ -64,19 +65,22 @@ class DecodeOnce(InferenceTask):
         beam_search_predicted_tokens = []
         seq_len = predicted_tokens.shape[0]
         beam_width = predicted_tokens.shape[1]
+
         for length in range(1, seq_len):
           prediction_per_len = []
           for k in range(0, min(beam_width, self.top_k)):
             pred_tokens_k  = beam_search_traceback(length, k)
+
+            # bigram score P(char_cur|char_prev)
             bigram_score = 0
             char_cur = predicted_tokens[length-1, k]
             char_parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
             char_prev = predicted_tokens[length - 2, char_parent_id]
 
             if char_cur == "SEQUENCE_END":
-              char_cur = "^"
+                char_cur = "^"
             else:
-              char_cur = char_cur[0]
+                char_cur = char_cur[0]
             if char_prev == "SEQUENCE_END":
               char_prev = "^"
             else:
@@ -104,7 +108,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_07"
+MODEL_DIR = "/data/model/mixed_abbrs_05_20"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -204,6 +208,10 @@ def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
+
+  print(context)
+  print(pinyins)
+
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
   #print("------------", context + " | " + pinyins)
@@ -222,6 +230,7 @@ if __name__ == "__main__":
      u"^ 我 爸 爸 现 在 在 家 , | t a",
      u"^ 我 叫 | w e n q i n g d a"
   ]
+  
   for sample_in in samples:
      pprint.pprint(sample_in)
      print(query_once(sample_in))
