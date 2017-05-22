@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, render_template, request, json
 
 import pinyin_util as pu
-# import beam_search as bs
-# import inference_handler as ih
+import beam_search as bs
+import inference_handler as ih
 
 app = Flask(__name__, static_folder = "web/static", template_folder = "web/templates")
 app.config['JSON_AS_ASCII'] = False
@@ -21,8 +21,9 @@ def getPrediction():
     # need to convert pinyin-tokens to array, but prev-chars is fine
     # since it is a string already
     # TODO: figure out a way to swap model easily
-    predicted_result = ih.query(request.args.get('prev-chars'), 
-                                            request.args.get('pinyin-tokens'))
+    context = request.args.get('prev-chars') 
+    pinyin = request.args.get('pinyin-tokens')
+    predicted_result = ih.query(context, pinyin)
     ret_data = { "value": predicted_result }
     return jsonify(ret_data)
 

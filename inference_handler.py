@@ -8,6 +8,8 @@ import pprint
 import logging
 from ngram import load_model as load_ngram_model
 
+unigram_dict, bigram_dict, dictionary = load_ngram_model("model/ngrams_model")
+
 
 class DecodeOnce(InferenceTask):
   '''
@@ -107,7 +109,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_07"
+MODEL_DIR = "/data/model/mixed_abbrs_05_20"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -203,6 +205,10 @@ def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
+
+  print(context)
+  print(pinyins)
+
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list(pinyins))
   print("------------", context + " | " + pinyins)
@@ -221,7 +227,6 @@ if __name__ == "__main__":
      u"^ 我 爸 爸 现 在 在 家 , | t a",
      u"^ 我 叫 | w e n q i n g d a"
   ]
-  unigram_dict, bigram_dict, dictionary = load_ngram_model("model/ngrams_model")
   
   for sample_in in samples:
      pprint.pprint(sample_in)
