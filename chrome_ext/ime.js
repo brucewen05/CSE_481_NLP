@@ -120,7 +120,7 @@ $(document).ready(function() {
         index = inputElement[0].selectionStart;
         lines = inputElement.val().split("\n");
         prev_txt = "^" + lines[lines.length - 1];  // last line
-        context = prev_txt.substring(Math.max(0, index - MAX_CONTEXT_WINDOW), index);
+        context = prev_txt.substring(Math.max(0, index - MAX_CONTEXT_WINDOW), index + 1);
         return context;
     }
 
