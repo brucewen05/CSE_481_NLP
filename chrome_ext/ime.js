@@ -103,6 +103,7 @@ $(document).ready(function() {
         console.log("query " + context + "|" + pinyin);
         // TODO: query backend; handle data race
         choices = ["自然", "孜然", "自燃", "字", "子"];
+        curPageStart = 0
     }
 
     function getContextWindow(inputElement) {
