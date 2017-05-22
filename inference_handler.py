@@ -6,6 +6,7 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
+import eval as ev
 
 class DecodeOnce(InferenceTask):
   '''
@@ -42,23 +43,13 @@ class DecodeOnce(InferenceTask):
     for fetches in unbatch_dict(fetches_batch):
       # Convert to unicode
       fetches["predicted_tokens"] = np.char.decode(
-          fetches["predicted_tokens"].astype("S"), "utf-8")
+        fetches["predicted_tokens"].astype("S"), "utf-8")
       predicted_tokens = fetches["predicted_tokens"]
-
-      #self._beam_accum["predicted_ids"].append(fetches["beam_search_output.predicted_ids"])
-      #self._beam_accum["beam_parent_ids"].append(fetches["beam_search_output.beam_parent_ids"])
-      #self._beam_accum["scores"].append(fetches["beam_search_output.scores"])
-      #self._beam_accum["log_probs"].append(fetches["beam_search_output.log_probs"])
 
       self._beam_accum["predicted_ids"] = [fetches["beam_search_output.predicted_ids"]]
       self._beam_accum["beam_parent_ids"] = [fetches["beam_search_output.beam_parent_ids"]]
       self._beam_accum["scores"] = [fetches["beam_search_output.scores"]]
       self._beam_accum["log_probs"] = [fetches["beam_search_output.log_probs"]]
-
- #     print("\n\n")
-#      print(self._beam_accum)
-      #print(predicted_tokens)
-#      print("\n\n")
       
       def beam_search_traceback(i, cur_id):
         if i == 0: return np.array([])
@@ -70,28 +61,40 @@ class DecodeOnce(InferenceTask):
       # If we're using beam search we take the first beam
       # TODO: beam search top k
       if np.ndim(predicted_tokens) > 1:
-        #predicted_tokens = predicted_tokens[:, 0]
-        try:
-          beam_search_predicted_tokens = []
-          seq_len = predicted_tokens.shape[0]
-          beam_width = predicted_tokens.shape[1]
-        #print(predicted_tokens, self._beam_accum["log_probs"][0])
-          for length in range(1, seq_len):
-            prediction_per_len = []
-            for k in range(0, min(beam_width, self.top_k)):
-              pred_tokens_k  = beam_search_traceback(length, k)
-              prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
-              if not _arreq_in_list(pred_tokens_k, prediction_per_len):
-                prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-            beam_search_predicted_tokens.append(prediction_per_len)
-          predicted_tokens = beam_search_predicted_tokens
-        except IndexError as e:
-          logging.exception("")
-          print(self._beam_accum)
-          print(predicted_tokens)
-          predicted_tokens = []
-          print("parents dim", np.ndim(self._beam_accum["beam_parent_ids"]))
-          print("predicted tokends dim", np.ndim(predicted_tokens))
+        beam_search_predicted_tokens = []
+        seq_len = predicted_tokens.shape[0]
+        beam_width = predicted_tokens.shape[1]
+        for length in range(1, seq_len):
+          prediction_per_len = []
+          for k in range(0, min(beam_width, self.top_k)):
+            pred_tokens_k  = beam_search_traceback(length, k)
+            bigram_score = 0
+            char_cur = predicted_tokens[length-1, k]
+            char_parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
+            char_prev = predicted_tokens[length - 2, char_parent_id]
+
+            if char_cur == "SEQUENCE_END":
+              char_cur = "^"
+            else:
+              char_cur = char_cur[0]
+            if char_prev == "SEQUENCE_END":
+              char_prev = "^"
+            else:
+              char_prev = char_prev[len(char_prev) - 1]
+            
+            try:
+              bigram_score = (ev.bigram_dict[(char_prev, char_cur)]+1) / float(ev.unigram_dict[(char_prev)] + len(ev.dictionary.keys()))
+            except KeyError:
+              bigram_score = 1 / float(len(ev.dictionary.keys()))
+            #print(char_prev, char_cur, round(bigram_score, 4))
+            prob_pred_token_k = self._beam_accum["log_probs"][0][length-1][k]
+            
+            prob_pred_token_k += 0.9 * bigram_score
+            
+            if not _arreq_in_list(pred_tokens_k, prediction_per_len):
+              prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
+          beam_search_predicted_tokens.append(prediction_per_len)
+        predicted_tokens = beam_search_predicted_tokens
       
       fetches["features.source_tokens"] = np.char.decode(
           fetches["features.source_tokens"].astype("S"), "utf-8")
@@ -171,12 +174,16 @@ def query_once(source_tokens):
     })
   
   predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
-  print("all result:")
-  print(predictions_list)
-  result = sort_and_merge_predictions(predictions_list)
-  print("result to be returned:")
-  print(result)
-  return result
+  for i in range(len(predictions_list)):
+    new_pred_list = sorted(predictions_list[i], key=lambda pred_tuple: pred_tuple[1], reverse=True)
+    predictions_list[i] = new_pred_list
+  return predictions_list
+  #print("all result:")
+  #print(predictions_list)
+  #result = sort_and_merge_predictions(predictions_list)
+  #print("result to be returned:")
+  #print(result)
+  #return result
 
 def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     flat_list = []
@@ -191,15 +198,15 @@ def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     print("flat list before sorting:")
     print(flat_list)
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
-    #print("after sorting:")
-    #print(ranked)
+    print("after sorting:")
+    print(ranked)
     return ranked #[x[0] for x in ranked]
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
-  print("------------", context + " | " + pinyins)
+  #print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
 if __name__ == "__main__":

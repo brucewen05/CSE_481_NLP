@@ -8,9 +8,12 @@ import beam_search as bs
 import metric
 import argparse
 import inference_handler as s2s
+import ngram as ng
 
+unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
 def predict(config):
     pprint.pprint(config)
+    
     if config.model == 'bs.ngram_beam_search':
         model_func = bs.ngram_beam_search
     elif config.model == 's2s':
@@ -24,7 +27,7 @@ def predict(config):
     ground_truth = []
     index = 0
     for truth, data in zip(target, source):
-        if index % 5000 == 0:
+        if index % 50 == 0:
             print(index)
             pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
