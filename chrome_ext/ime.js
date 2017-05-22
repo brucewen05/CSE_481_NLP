@@ -1,6 +1,6 @@
 var CHOICES_PER_PAGE = 2;
 var MAX_CONTEXT_WINDOW = 10;
-var SERVER_ADDR = "TODO";
+var SERVER_ADDR = "13.85.8.128:7000";
 
 $(document).ready(function() {
 
@@ -101,8 +101,18 @@ $(document).ready(function() {
 
     function reloadPredictions(context, pinyin) {
         console.log("query " + context + "|" + pinyin);
-        // TODO: query backend; handle data race
-        choices = ["自然", "孜然", "自燃", "字", "子"];
+        $.ajax({
+            type: "GET",
+            url: SERVER_ADDR + "/predict/",
+            contentType: "application/json; charset=utf-8",
+            data: { "prev-chars": context, 
+                    "pinyin-tokens":  pinyin },
+            success: function(predict_data) {              
+                console.log(predict_data.value);
+                choices = predict_data.value
+            }
+        });
+        //choices = ["自然", "孜然", "自燃", "字", "子"];
         curPageStart = 0
     }
 

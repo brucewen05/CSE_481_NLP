@@ -8,6 +8,7 @@ import pprint
 import logging
 from ngram import load_model as load_ngram_model
 
+
 class DecodeOnce(InferenceTask):
   '''
   Similar to tasks.DecodeText, but for one input only.
@@ -198,12 +199,12 @@ def sort_and_merge_predictions(predictions_list, max_items=10, cutoff=3):
     ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)[:max_items]
     #print("after sorting:")
     #print(ranked)
-    return ranked #[x[0] for x in ranked]
+    return [x[0] for x in ranked]
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
-  pinyins = " ".join(list("".join(pinyins)))
+  pinyins = " ".join(list(pinyins))
   print("------------", context + " | " + pinyins)
   return query_once(context + " | " + pinyins)
       
