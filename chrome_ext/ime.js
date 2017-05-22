@@ -1,6 +1,6 @@
-var CHOICES_PER_PAGE = 2;
+var CHOICES_PER_PAGE = 5;
 var MAX_CONTEXT_WINDOW = 10;
-var SERVER_ADDR = "13.85.8.128:7000";
+var SERVER_ADDR = "http://13.85.28.147:7000";
 
 $(document).ready(function() {
 
@@ -71,7 +71,6 @@ $(document).ready(function() {
     function buffer(txt, inputElement) {
         imeInput.text(imeInput.text() + txt);
         reloadPredictions(getContextWindow(inputElement), imeInput.text());
-        setChoiceElemsInPage();
     }
 
     function output(inputElement, txt) {
@@ -110,10 +109,11 @@ $(document).ready(function() {
             success: function(predict_data) {              
                 console.log(predict_data.value);
                 choices = predict_data.value
+                curPageStart = 0
+                setChoiceElemsInPage();
             }
         });
         //choices = ["自然", "孜然", "自燃", "字", "子"];
-        curPageStart = 0
     }
 
     function getContextWindow(inputElement) {
