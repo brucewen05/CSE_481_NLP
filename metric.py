@@ -82,9 +82,9 @@ def evaluate(target, predictions, k):
             length += len(word)
         ground_truth = data.strip()
         ground_truth = "".join(ground_truth.split())
-        if length > 3:
-            print(ground_truth)
-            print(prediction)
+        #if length > 3:
+            #print(ground_truth)
+            #print(prediction)
         try:
             lens[length] += 1
         except KeyError:

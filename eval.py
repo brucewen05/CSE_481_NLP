@@ -3,11 +3,10 @@ import sys
 import os
 import pprint
 import pinyin_util as pu
-import inference_handler as s2s
 import beam_search as bs
 import metric
 import argparse
-import inference_handler as s2s
+import eval_inference_handler as s2s
 import ngram as ng
 
 unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
@@ -27,7 +26,7 @@ def predict(config):
     ground_truth = []
     index = 0
     for truth, data in zip(target, source):
-        if index % 10 == 0:
+        if index % 1000 == 0:
             print(index)
             pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
@@ -61,7 +60,7 @@ def load_data(filename):
         return data
     except IOError:
         usage()
-        print('IO error')
+        print('IO error', filename)
         sys.exit(2)
 
 
@@ -70,8 +69,8 @@ def usage():
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'weibo_abbrs.source'))
-    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'weibo_abbrs.target'))
+    parser.add_argument('--test_data_source', default=os.path.join('/data', 'test', 'mixed_abbrs.source'))
+    parser.add_argument('--test_data_target', default=os.path.join('/data', 'test', 'mixed_abbrs.target'))
     parser.add_argument('--model', default='bs.ngram_beam_search')
     parser.add_argument('--k', default='10')
     parser.add_argument('--device_type', default='cpu')

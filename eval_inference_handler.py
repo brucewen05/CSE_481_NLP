@@ -6,7 +6,7 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
-#import eval as ev
+import eval as ev
 
 class DecodeOnce(InferenceTask):
   '''
@@ -80,9 +80,24 @@ class DecodeOnce(InferenceTask):
           for length in range(seq_len, 0, -1):
             for k in range(0, beam_width):
               parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
-              log_prob = self._beam_accum["log_probs"][0][length - 1][k]
-              #parent_log_prob = self._beam_accum["log_probs"][0][length - 2][parent_id]
-         
+              
+              bigram_score = 0
+              char_cur = predicted_tokens[length - 1, k]
+              char_prev = predicted_tokens[length - 2, parent_id]
+              if char_cur == "SEQUENCE_END":
+                char_cur = "^"
+              else:
+                char_cur = char_cur[0]
+              if char_prev == "SEQUENCE_END":
+                char_prev = "^"
+              else:
+                char_prev = char_prev[len(char_prev) - 1]
+              try:
+                bigram_score = (ev.bigram_dict[(char_prev, char_cur)]+1) / float(ev.unigram_dict[(char_prev)] + len(ev.unigram_dict.keys()))
+              except KeyError:
+                bigram_score = 1 / float(len(ev.unigram_dict.keys()))
+              self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k]
+
           for length in range(1, seq_len):
             prediction_per_len = []
             for k in range(0, min(beam_width, self.top_k)):
@@ -90,7 +105,7 @@ class DecodeOnce(InferenceTask):
               prob_pred_token_k = self._beam_accum["scores"][0][length-1][k]
               if not _arreq_in_list(pred_tokens_k, prediction_per_len):
                 prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-            prediction_per_len = sorted(prediction_per_len, key=lambda x: x[1], reverse=True)[:beam_width]
+            prediction_per_len = sorted(prediction_per_len, key=lambda x: x[1], reverse=True)[:10]
             beam_search_predicted_tokens.append(prediction_per_len)
           predicted_tokens = beam_search_predicted_tokens
         except IndexError as e:
@@ -179,35 +194,31 @@ def query_once(source_tokens):
     })
   
   predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
-  #return predictions_list
+  return predictions_list
   #print("all result:")
   #print(predictions_list)
-  result = sort_and_merge_predictions(predictions_list)
-  print("result to be returned:")
-  print(result)
-  return result
+  #result = sort_and_merge_predictions(predictions_list)
+  #print("result to be returned:")
+  #print(result)
+  #return result
 
 def sort_and_merge_predictions(predictions_list):
-    count_per_len = [10, 6, 3, 2, 1]
+    count_per_len = [0, 10, 6, 3, 2, 1]
     flat_list = []
     num_keep = 1
-    s = set()
-    for i in range(0, len(predictions_list)):
-      sublist = predictions_list[i]
-      num_keep = count_per_len[i]
-      ranked_sublist = sorted(sublist, key=lambda x: x[1], reverse=True)
-      temp_list = []
+    for sublist in reversed(predictions_list):
+      num_keep = count_per_len[len(sublist[0])]
+      ranked_sublist = sorted(sublist, key=lambda x: x[1], reverse=True)[:num_keep]
+      if (num_keep > cutoff):
+        num_keep = cutoff
       for t in ranked_sublist:
-        if (t[0] not in s and 'UNK' not in t[0]):
-          temp_list.append((t[0].replace(" ", ""), t[1]))
-          s.add(t[0])
-      flat_list.extend(temp_list[:num_keep])
-    #print("flat list before sorting:")
-    #print(flat_list)
-    ranked = sorted(flat_list, key=lambda x: (len(x[0]), x[1]), reverse=True)
-    print("after sorting:")
-    print(ranked)
-    return [x[0] for x in ranked]
+        flat_list.append((t[0].replace(" ", ""), t[1]))
+    print("flat list before sorting:")
+    print(flat_list)
+    ranked = sorted(flat_list, key=lambda x: x[1] / len(x[0]), reverse=True)
+    #print("after sorting:")
+    #print(ranked)
+    return ranked #[x[0] for x in ranked]
 
 def query(context, pinyins):
   # TODO: do not hard code window size here
