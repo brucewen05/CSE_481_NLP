@@ -6,7 +6,7 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
-import eval as ev
+#import eval as ev
 
 class DecodeOnce(InferenceTask):
   '''
@@ -82,30 +82,6 @@ class DecodeOnce(InferenceTask):
               parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
               log_prob = self._beam_accum["log_probs"][0][length - 1][k]
               #parent_log_prob = self._beam_accum["log_probs"][0][length - 2][parent_id]
-              bigram_score = 0
-              char_cur = predicted_tokens[length-1, k]
-              char_prev = predicted_tokens[length - 2, parent_id]
-              if char_cur == "SEQUENCE_END":
-                char_cur = "^"
-              else:
-                char_cur = char_cur[0]
-              if char_prev == "SEQUENCE_END":
-                char_prev = "^"
-              else:
-                char_prev = char_prev[len(char_prev) - 1]
-              try:
-                bigram_score = (ev.bigram_dict[(char_prev, char_cur)]+1) / float(ev.unigram_dict[(char_prev)] + len(ev.dictionary.keys()))
-              except KeyError:
-                bigram_score = 1 / float(len(ev.dictionary.keys()))
-              self._beam_accum["scores"][0][length - 1][k] = log_prob + 5 * bigram_score
-              
-          #print(self._beam_accum["beam_parent_ids"])    
-          #print(self._beam_accum["log_probs"])
-          #print(self._beam_accum["scores"])
-        
-          for length in range(0, seq_len-1):
-           #print(np.argsort(self._beam_accum["scores"][0][length])[::-1][:beam_width])
-           pass
          
           for length in range(1, seq_len):
             prediction_per_len = []
@@ -133,7 +109,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_07"
+MODEL_DIR = "/data/model/mixed_abbrs_05_20"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
