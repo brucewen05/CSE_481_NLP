@@ -6,6 +6,7 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
+import pinyin_util as pu
 #import eval as ev
 
 class DecodeOnce(InferenceTask):
@@ -189,16 +190,18 @@ def query_once(source_tokens):
 
 def sort_and_merge_predictions(predictions_list):
     count_per_len = [10, 6, 3, 2, 1]
+    cutoff_per_len = [-20., -5., -5., -5., -5.]
     flat_list = []
     num_keep = 1
     s = set()
     for i in range(0, len(predictions_list)):
       sublist = predictions_list[i]
       num_keep = count_per_len[i]
+      cutoff = cutoff_per_len[i]
       ranked_sublist = sorted(sublist, key=lambda x: x[1], reverse=True)
       temp_list = []
       for t in ranked_sublist:
-        if (t[0] not in s and 'UNK' not in t[0]):
+        if (t[0] not in s and 'UNK' not in t[0] and t[1] > cutoff):
           temp_list.append((t[0].replace(" ", ""), t[1]))
           s.add(t[0])
       flat_list.extend(temp_list[:num_keep])
@@ -209,13 +212,15 @@ def sort_and_merge_predictions(predictions_list):
     print(ranked)
     return [x[0] for x in ranked]
 
-def query(context, pinyins):
+def query(context, pinyin_str):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
-  pinyins = " ".join(list("".join(pinyins)))
+  pinyins = " ".join(list("".join(pinyin_str)))
   #print("------------", context + " | " + pinyins)
-  return query_once(context + " | " + pinyins)
-      
+  res = [(x, pu.num_pinyins_used_in_predicton(x, pinyin_str)) for x in query_once(context + " | " + pinyins)]
+  print(res)
+  return res 
+
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms

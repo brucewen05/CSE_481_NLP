@@ -93,9 +93,9 @@ class DecodeOnce(InferenceTask):
               else:
                 char_prev = char_prev[len(char_prev) - 1]
               try:
-                bigram_score = (ev.bigram_dict[(char_prev, char_cur)]+1) / float(ev.unigram_dict[(char_prev)] + len(ev.unigram_dict.keys()))
-              except KeyError:
-                bigram_score = 1 / float(len(ev.unigram_dict.keys()))
+                bigram_score = (ev.bigram_dict[(char_prev, char_cur)]) / float(ev.unigram_dict[char_prev])
+              except ZeroDivisionError or KeyError:
+                bigram_score = 0
               self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k]
 
           for length in range(1, seq_len):
