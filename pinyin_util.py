@@ -178,6 +178,8 @@ typo_transpose_letter = {'a': [['q', 's', 'w', 'x', 'z'],
 full_pinyin_candidates = {}
 pinyin_prefix_candidates = {}
 
+char_to_pinyin_partials_dict = {}  # char -> set(pinyins)
+
 # constructs candidate map
 # need to change back the path later
 with codecs.open("data/pinyin_char_dictionary.txt", encoding='utf-8') as f:
@@ -190,13 +192,17 @@ for line in [line.strip() for line in lines]:
             full_pinyin_candidates[full_py] = []
         full_pinyin_candidates[full_py] += [char]
         
+        if char not in char_to_pinyin_partials_dict:
+            char_to_pinyin_partials_dict[char] = set()
+        char_to_pinyin_partials_dict[char].add(full_py)
+
         if full_py[0] in valid_prefixes or full_py[:2] in valid_prefixes:
             prefix = full_py[:2] if len(full_py) > 2 and full_py[:2] in valid_prefixes \
                 else full_py[0]
             if prefix not in pinyin_prefix_candidates:
                 pinyin_prefix_candidates[prefix] = []
             pinyin_prefix_candidates[prefix] += [char]
-
+            char_to_pinyin_partials_dict[char].add(prefix)
 
 def get_pinyin_candidates(pinyin_or_prefix, allow_prefix=True):
     if pinyin_or_prefix in valid_prefixes:
@@ -253,6 +259,21 @@ def get_all_candidates_chars():
         res = res.union(set(chars))
     return res
 
+# return p where pinyin_full[0..p) corresponds to all of chars
+# Uses longest match heuristic
+def num_pinyins_used_in_predicton(chars, pinyin_full):
+    count = 0
+    remaining = pinyin_full
+    for ch in chars:
+        longest = 0
+        for pinyin_partial in char_to_pinyin_partials_dict[ch]:
+            if remaining.startswith(pinyin_partial) and longest < len(pinyin_partial):
+                longest = len(pinyin_partial)
+        count += longest
+        remaining = remaining[longest:]
+    return count
+
+
 if __name__ == "__main__":
     # tests
     assert segment_with_hint("aaa") == ["a", "a", "a"]
@@ -271,3 +292,6 @@ if __name__ == "__main__":
     assert not set(["丢"]).issubset(set(get_pinyin_candidates("di")))
     assert set(get_pinyin_candidates("a")) == set(["呵","吖","錒","啊","阿","嗄","锕","腌"])
     assert get_pinyin_candidates("u") is None
+
+    # print(char_to_pinyin_partials_dict[u"落"])
+    assert num_pinyins_used_in_predicton(u"落下来了", "luoxlailema") == 9

@@ -105,7 +105,7 @@ if __name__ == "__main__":
     while (True) :
         print("Enter pinyin_cur （e.g. \'zhong\'）:")
         pinyin_cur = stdin.readline()[:-1]
-        if  not pinyin_cur:
+        if not pinyin_cur:
             break
 
         suggestion = predict(word_prev, pinyin_cur)

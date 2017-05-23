@@ -127,6 +127,9 @@ class BidirectionalRNNEncoder(Encoder):
     }
 
   def encode(self, inputs, sequence_length, **kwargs):
+
+    print("\n--------------------------\ninputs to encode\n" + str(inputs) + "\n\n")
+
     scope = tf.get_variable_scope()
     scope.set_initializer(tf.random_uniform_initializer(
         -self.params["init_scale"],
@@ -144,6 +147,9 @@ class BidirectionalRNNEncoder(Encoder):
 
     # Concatenate outputs and states of the forward and backward RNNs
     outputs_concat = tf.concat(outputs, 2)
+
+    print("\noutput state tensor\n" +str(outputs_concat)+ "\n\n")
+    print("\nfinal state tensor\n"+str(states)+"\n\n" )
 
     return EncoderOutput(
         outputs=outputs_concat,

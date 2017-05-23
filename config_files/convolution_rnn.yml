@@ -23,8 +23,8 @@ model_params:
       cell_class: GRUCell
       cell_params:
         num_units: 512
-      dropout_input_keep_prob: 1.0
-      dropout_output_keep_prob: 0.8
+      dropout_input_keep_prob: 0.95
+      dropout_output_keep_prob: 1.0
       num_layers: 3
   optimizer.name: Adam
   optimizer.params:
