@@ -5,6 +5,7 @@ var SERVER_ADDR = "http://13.85.28.147:7000";
 $(document).ready(function() {
 
     var choices = []
+    var numPinyinsUsed = []
     var curPageStart = 0
 
     // unfocus
@@ -55,6 +56,9 @@ $(document).ready(function() {
             } else if (event.keyCode == 8) {  // backspace
                 var str = imeInput.text();
                 imeInput.text(str.substring(0, str.length - 1));
+                if (imeInput.text() !== "") {
+                    reloadPredictions(getContextWindow(inputElement), imeInput.text());
+                }
             }
         }
         if (imeInput.text() !== "") {
@@ -88,14 +92,14 @@ $(document).ready(function() {
         if (curPageStart + CHOICES_PER_PAGE < choices.length) {
             curPageStart += CHOICES_PER_PAGE;
         }
-        setChoiceElemsInPage()
+        setChoiceElemsInPage();
     }
 
     function prevPage() {
         if (curPageStart - CHOICES_PER_PAGE >= 0) {
             curPageStart -= CHOICES_PER_PAGE;
         }
-        setChoiceElemsInPage()
+        setChoiceElemsInPage();
     }
 
     function reloadPredictions(context, pinyin) {
@@ -107,9 +111,14 @@ $(document).ready(function() {
             data: { "prev-chars": context, 
                     "pinyin-tokens":  pinyin },
             success: function(predict_data) {              
-                console.log(predict_data.value);
-                choices = predict_data.value
-                curPageStart = 0
+                // console.log(predict_data.value);
+                choices = []
+                numPinyinsUsed = []
+                predict_data.value.forEach(function(tup) {
+                    choices.push(tup[0]);
+                    numPinyinsUsed.push(tup[1]);
+                });
+                curPageStart = 0;
                 setChoiceElemsInPage();
             }
         });
