@@ -1,0 +1,25 @@
+---
+title: "NLP Profiling"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Profiling Results:
+```{r ,echo=FALSE}
+base.path = "~/Desktop/CSE_481/length_profiles/"
+
+for (i in 1:5) {
+  full.path = paste(base.path, i, ".csv", sep = "")
+  test.data = read.csv(full.path)
+  colnames(test.data)[1] <- "prob"
+  summary(test.data$prob)
+  t = paste("length ", i, " profile", sep = "")
+  hist(test.data$prob, xlab = "probability", ylab = "Frequency", main = t, breaks = seq(-15, 0, 0.5))
+  #print(full.path)
+  #test.data = 
+}
+```
