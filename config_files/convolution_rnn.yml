@@ -8,15 +8,15 @@ model_params:
   encoder.class: seq2seq.encoders.ConvEncoder
   encoder.params:
     attention_cnn.units: 512
-    attention_cnn.kernel_size: 2
-    attention_cnn.layers: 3
-    embedding_dropout_keep_prob: 0.8
+    attention_cnn.kernel_size: 3
+    attention_cnn.layers: 5
+    embedding_dropout_keep_prob: 0.6
     output_cnn.units: 256
     output_cnn.kernel_size: 2
     output_cnn.layers: 3
     position_embeddings.enable: True
-    position_embeddings.combiner_fn": "tensorflow.multiply"
-    position_embeddings.num_positions: 100
+    position_embeddings.combiner_fn: "tensorflow.multiply"
+    position_embeddings.num_positions: 50
   decoder.class: seq2seq.decoders.AttentionDecoder
   decoder.params:
     rnn_cell:
