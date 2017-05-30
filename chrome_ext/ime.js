@@ -7,6 +7,9 @@ $(document).ready(function() {
     var choices = []
     var numPinyinsUsed = []
     var curPageStart = 0
+    var preselectionStack = [["", ""]]  // [[chars, additional pinyins used]]
+    var curPinyinInput = ""
+    // invariant: imeInput.text() == preselectionStack.top[0] + curPinyinInput
 
     // unfocus
     $('textarea').blur()
@@ -40,7 +43,7 @@ $(document).ready(function() {
             return;
         }
         
-        if (imeInput.text() !== "") {
+        if (curPinyinInput !== "") {
             event.preventDefault();
 
             if (key == " ") {
@@ -54,10 +57,15 @@ $(document).ready(function() {
             } else if (key == "-" || key == ",") {
                 prevPage();
             } else if (event.keyCode == 8) {  // backspace
-                var str = imeInput.text();
-                imeInput.text(str.substring(0, str.length - 1));
-                if (imeInput.text() !== "") {
-                    reloadPredictions(getContextWindow(inputElement), imeInput.text());
+                if (preselectionStack.length > 1) {
+                    curPinyinInput = preselectionStack.pop()[1] + curPinyinInput;
+                } else if (curPinyinInput != "") {
+                    curPinyinInput = curPinyinInput.substring(0, curPinyinInput.length - 1);
+                }
+                var preselected = preselectionStack[preselectionStack.length - 1];
+                imeInput.text(preselected[0] + curPinyinInput);
+                if (curPinyinInput !== "") {
+                    reloadPredictions(getContextWindow(inputElement) + preselected[0], curPinyinInput);
                 }
             }
         }
@@ -69,23 +77,34 @@ $(document).ready(function() {
     }
 
     function choose(inputElement, index) {
-        output(inputElement, choices[curPageStart + index - 1])
+        var num = curPageStart + index - 1
+        var preselected = preselectionStack[preselectionStack.length - 1]
+        if (numPinyinsUsed[num] == curPinyinInput.length) {
+            output(inputElement, preselected[0] + choices[num])
+        } else {
+            var pinyinUsed = curPinyinInput.substring(0, numPinyinsUsed[num])
+            curPinyinInput = curPinyinInput.substring(numPinyinsUsed[num])
+            preselectionStack.push([preselected[0] + choices[num], pinyinUsed])
+            imeInput.text(preselectionStack[preselectionStack.length - 1][0] + curPinyinInput)
+        }
     }
 
     function buffer(txt, inputElement) {
-        imeInput.text(imeInput.text() + txt);
-        reloadPredictions(getContextWindow(inputElement), imeInput.text());
+        curPinyinInput += txt;
+        var preselected = preselectionStack[preselectionStack.length - 1];
+        imeInput.text(preselected[0] + curPinyinInput);
+        reloadPredictions(getContextWindow(inputElement) + preselected[0], curPinyinInput);
     }
 
     function output(inputElement, txt) {
         index = inputElement[0].selectionStart;
         inputElement.val(inputElement.val().substring(0, index) + txt +
             inputElement.val().substring(index));
-
         setCaretPosition(inputElement[0], index + txt.length)
-
         imeBox.fadeOut(200);
         imeInput.text("");
+        curPinyinInput = "";
+        preselectionStack = [["", ""]];
     }
     
     function nextPage() {
@@ -122,14 +141,17 @@ $(document).ready(function() {
                 setChoiceElemsInPage();
             }
         });
-        //choices = ["自然", "孜然", "自燃", "字", "子"];
+        // choices = ["自然", "孜然", "自燃", "字", "子"];
+        // numPinyinsUsed = [5, 5, 5, 2, 2];
+        // curPageStart = 0;
+        // setChoiceElemsInPage();
     }
 
     function getContextWindow(inputElement) {
-        index = inputElement[0].selectionStart;
-        lines = inputElement.val().split("\n");
-        prev_txt = "^" + lines[lines.length - 1];  // last line
-        context = prev_txt.substring(Math.max(0, index - MAX_CONTEXT_WINDOW), index + 1);
+        var index = inputElement[0].selectionStart;
+        var lines = inputElement.val().split("\n");
+        var prev_txt = "^" + lines[lines.length - 1];  // last line
+        var context = prev_txt.substring(Math.max(0, index - MAX_CONTEXT_WINDOW), index + 1);
         return context;
     }
 
