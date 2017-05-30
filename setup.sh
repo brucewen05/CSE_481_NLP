@@ -9,8 +9,8 @@ fi
 corpus_name="$1"
 train_steps="$3"
 data_path="/data"
-vocab_source="${data_path}/vocab/weibo"
-vocab_target="${data_path}/vocab/weibo"
+vocab_source="${data_path}/vocab/wiki"
+vocab_target="${data_path}/vocab/wiki"
 #vocab_target="${data_path}/vocab/words_small"
 
 echo "Using corpus: ${corpus_name}"

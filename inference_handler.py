@@ -8,6 +8,9 @@ import pprint
 import logging
 import pinyin_util as pu
 #import eval as ev
+#import ngram as ng
+
+#unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
 
 class DecodeOnce(InferenceTask):
   '''
@@ -78,12 +81,28 @@ class DecodeOnce(InferenceTask):
           seq_len = predicted_tokens.shape[0]
           beam_width = predicted_tokens.shape[1]
 
-          for length in range(seq_len, 0, -1):
-            for k in range(0, beam_width):
-              parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
-              log_prob = self._beam_accum["log_probs"][0][length - 1][k]
-              #parent_log_prob = self._beam_accum["log_probs"][0][length - 2][parent_id]
-         
+          #for length in range(seq_len, 0, -1):
+          #  for k in range(0, beam_width):
+          #    parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
+          #    log_prob = self._beam_accum["log_probs"][0][length - 1][k]
+          #    #parent_log_prob = self._beam_accum["log_probs"][0][length - 2][parent_id]
+          #    bigram_score = 0
+          #    char_cur = predicted_tokens[length - 1, k]
+          #    char_prev = predicted_tokens[length - 2, parent_id]
+          #    if char_cur == "SEQUENCE_END":
+          #      char_cur = "^"
+          #    else:
+          #      char_cur = char_cur[0]
+          #    if char_prev == "SEQUENCE_END":
+          #      char_prev = "^"
+          #    else:
+          #      char_prev = char_prev[len(char_prev) - 1]
+          #    try:
+          #      bigram_score = (bigram_dict[(char_prev, char_cur)]) / float(unigram_dict[char_prev])
+          #    except ZeroDivisionError or KeyError:
+          #      bigram_score = 0
+          #    self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k] + 3 * bigram_score
+                                                                                                                                                        
           for length in range(1, seq_len):
             prediction_per_len = []
             for k in range(0, min(beam_width, self.top_k)):
@@ -91,7 +110,7 @@ class DecodeOnce(InferenceTask):
               prob_pred_token_k = self._beam_accum["scores"][0][length-1][k]
               if not _arreq_in_list(pred_tokens_k, prediction_per_len):
                 prediction_per_len.append((pred_tokens_k, prob_pred_token_k))
-            prediction_per_len = sorted(prediction_per_len, key=lambda x: x[1], reverse=True)[:beam_width]
+            #prediction_per_len = sorted(prediction_per_len, key=lambda x: x[1], reverse=True)[:beam_width]
             beam_search_predicted_tokens.append(prediction_per_len)
           predicted_tokens = beam_search_predicted_tokens
         except IndexError as e:
@@ -110,7 +129,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_20"
+MODEL_DIR = "/data/model/mixed_abbrs_05_28_wiki"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -181,16 +200,17 @@ def query_once(source_tokens):
   
   predictions_list = prediction_dict.pop(_tokens_to_str(source_tokens))
   #return predictions_list
+  #return predictions_list
   #print("all result:")
   #print(predictions_list)
   result = sort_and_merge_predictions(predictions_list)
-  print("result to be returned:")
-  print(result)
+  #print("result to be returned:")
+  #print(result)
   return result
 
 def sort_and_merge_predictions(predictions_list):
     count_per_len = [10, 6, 3, 2, 1]
-    cutoff_per_len = [-20., -5., -5., -5., -5.]
+    cutoff_per_len = [-20., -5., -3., -3., -3.]
     flat_list = []
     num_keep = 1
     s = set()
@@ -216,6 +236,7 @@ def query(context, pinyin_str):
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyin_str)))
+  #return query_once(context + " | " + pinyins)
   #print("------------", context + " | " + pinyins)
   res = [(x, pu.num_pinyins_used_in_predicton(x, pinyin_str)) for x in query_once(context + " | " + pinyins)]
   print(res)

@@ -96,7 +96,7 @@ def extract_triples(paragraph_pairs,
         min_paragraph_len=6,
         add_abbr=True,
         add_typo=True,
-        pad_front=True):
+        pad_front=False):
     # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []

@@ -6,7 +6,10 @@ from seq2seq.training import utils as training_utils
 from seq2seq.tasks.inference_task import InferenceTask, unbatch_dict
 import pprint
 import logging
+#import ngram as ng
 import eval as ev
+
+#unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
 
 class DecodeOnce(InferenceTask):
   '''
@@ -96,7 +99,7 @@ class DecodeOnce(InferenceTask):
                 bigram_score = (ev.bigram_dict[(char_prev, char_cur)]) / float(ev.unigram_dict[char_prev])
               except ZeroDivisionError or KeyError:
                 bigram_score = 0
-              self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k]
+              self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k] + bigram_score * 3
 
           for length in range(1, seq_len):
             prediction_per_len = []
@@ -124,7 +127,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_20"
+MODEL_DIR = "/data/model/mixed_abbrs_05_26_wiki"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -230,7 +233,6 @@ def query(context, pinyins):
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
   # current prediction time ~20ms
-  #unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
   samples = [
      u"^ 下 班 | h o u y i q i c h i f a n",
      u"^ … 还 以 为 你 关 机 | s h u i z h a o l e",

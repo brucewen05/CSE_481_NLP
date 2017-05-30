@@ -6,7 +6,7 @@ import pinyin_util as pu
 import beam_search as bs
 import metric
 import argparse
-import eval_inference_handler as s2s
+import inference_handler as s2s
 import ngram as ng
 
 unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
@@ -20,13 +20,13 @@ def predict(config):
     else:
         raise NotImplementedError()
 
-    source = load_data(config.test_data_source)[:20000]
-    target = load_data(config.test_data_target)[:20000]
+    source = load_data(config.test_data_source)
+    target = load_data(config.test_data_target)
     predictions = []
     ground_truth = []
     index = 0
     for truth, data in zip(target, source):
-        if index % 1000 == 0:
+        if index % 50 == 0:
             print(index)
             pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
