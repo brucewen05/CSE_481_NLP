@@ -85,7 +85,9 @@ $(document).ready(function() {
             var pinyinUsed = curPinyinInput.substring(0, numPinyinsUsed[num])
             curPinyinInput = curPinyinInput.substring(numPinyinsUsed[num])
             preselectionStack.push([preselected[0] + choices[num], pinyinUsed])
-            imeInput.text(preselectionStack[preselectionStack.length - 1][0] + curPinyinInput)
+            preselected = preselectionStack[preselectionStack.length - 1]
+            imeInput.text(preselected[0] + curPinyinInput)
+            reloadPredictions(getContextWindow(inputElement) + preselected[0], curPinyinInput);
         }
     }
 
@@ -122,6 +124,7 @@ $(document).ready(function() {
     }
 
     function reloadPredictions(context, pinyin) {
+        var oldInput = imeInput.text();
         console.log("query " + context + "|" + pinyin);
         $.ajax({
             type: "GET",
@@ -129,7 +132,10 @@ $(document).ready(function() {
             contentType: "application/json; charset=utf-8",
             data: { "prev-chars": context, 
                     "pinyin-tokens":  pinyin },
-            success: function(predict_data) {              
+            success: function(predict_data) {
+                if (imeInput.text() !== oldInput) {
+                    return;  // result outdated
+                }
                 // console.log(predict_data.value);
                 choices = []
                 numPinyinsUsed = []
