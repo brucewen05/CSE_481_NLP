@@ -214,7 +214,7 @@ def get_pinyin_candidates(pinyin_or_prefix, allow_prefix=True):
         result = full_pinyin_candidates[pinyin_or_prefix]
 
     if (result):
-        result = list(filter(lambda c: c in chars_counts))
+        result = list(filter(lambda c: c in chars_counts, result))
         result = sorted(result, key=lambda c: chars_counts[c], reverse=True)
     return result
 

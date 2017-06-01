@@ -130,7 +130,7 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_28_wiki"
+MODEL_DIR = "/data/model/mixed_abbrs_05_07"
 
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
@@ -254,10 +254,7 @@ def combine_with_unigram(flat_predicted_list, pinyin_str):
   # predictions according to the first pinyin token
   if (len(pinyin_tokens) > 1):
     unigram_candidates = pu.get_pinyin_candidates(pinyin_tokens[0])
-    while unigram_candidates:
-      char = unigram_candidates.pop()
-      if (char not in flat_predicted_list):
-        flat_predicted_list.append(char)
+    flat_predicted_list += [x for x in unigram_candidates if x not in flat_predicted_list]
 
 
 
@@ -279,7 +276,7 @@ if __name__ == "__main__":
      #pprint.pprint(sample_in)
      #print(query_once(sample_in))
      #print()
-  print(query("^ 下 班", ""))
+  print(query("^下班", "houyiqichifan"))
   # print(query("^", "w"))
   # print(query("^", "wo"))
   # print(query("^我", "j"))
