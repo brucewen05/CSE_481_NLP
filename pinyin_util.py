@@ -1,4 +1,5 @@
 import codecs
+import frequency_counter as fc
 
 # extracts valid full pinyins
 # need to change back the path later
@@ -9,6 +10,7 @@ valid_pinyins = set([line.strip() for line in lines])
 valid_prefixes = ["b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j",
         "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"]
 invalid_single_char = ["i", "u", "v"]
+chars_counts = fc.load_count_map("/data/weibo_count.txt")
 
 # for typos: gnerate a typo lookup table:
 #                                        probably by coding each key
@@ -205,11 +207,16 @@ for line in [line.strip() for line in lines]:
             char_to_pinyin_partials_dict[char].add(prefix)
 
 def get_pinyin_candidates(pinyin_or_prefix, allow_prefix=True):
+    result = None
     if pinyin_or_prefix in valid_prefixes:
-        return pinyin_prefix_candidates[pinyin_or_prefix]
+        result = pinyin_prefix_candidates[pinyin_or_prefix]
     elif pinyin_or_prefix in valid_pinyins:
-        return full_pinyin_candidates[pinyin_or_prefix]
-    return None
+        result = full_pinyin_candidates[pinyin_or_prefix]
+
+    if (result):
+        result = list(filter(lambda c: c in chars_counts))
+        result = sorted(result, key=lambda c: chars_counts[c], reverse=True)
+    return result
 
 def next_syllable(pinyin_input, allow_invalid_single=True):
     tokens = segment_with_hint(pinyin_input, allow_invalid_single)

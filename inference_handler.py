@@ -82,6 +82,7 @@ class DecodeOnce(InferenceTask):
           beam_width = predicted_tokens.shape[1]
 
           #for length in range(seq_len, 0, -1):
+
           #  for k in range(0, beam_width):
           #    parent_id = self._beam_accum["beam_parent_ids"][0][length - 1][k]
           #    log_prob = self._beam_accum["log_probs"][0][length - 1][k]
@@ -130,6 +131,7 @@ class DecodeOnce(InferenceTask):
 
 # TODO: pass via args
 MODEL_DIR = "/data/model/mixed_abbrs_05_28_wiki"
+
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -225,8 +227,6 @@ def sort_and_merge_predictions(predictions_list):
           temp_list.append((t[0].replace(" ", ""), t[1]))
           s.add(t[0])
       flat_list.extend(temp_list[:num_keep])
-    #print("flat list before sorting:")
-    #print(flat_list)
     ranked = sorted(flat_list, key=lambda x: (len(x[0]), x[1]), reverse=True)
     print("after sorting:")
     print(ranked)
@@ -234,13 +234,32 @@ def sort_and_merge_predictions(predictions_list):
 
 def query(context, pinyin_str):
   # TODO: do not hard code window size here
+  if (len(context) < 10):
+    context = "^" * (10 - len(context)) + context
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyin_str)))
   #return query_once(context + " | " + pinyins)
   #print("------------", context + " | " + pinyins)
-  res = [(x, pu.num_pinyins_used_in_predicton(x, pinyin_str)) for x in query_once(context + " | " + pinyins)]
+  flat_predicted_list = query_once(context + " | " + pinyins)
+  combine_with_unigram(flat_predicted_list, pinyin_str)
+  res = [(x, pu.num_pinyins_used_in_predicton(x, pinyin_str)) for x in flat_predicted_list]
   print(res)
   return res 
+
+def combine_with_unigram(flat_predicted_list, pinyin_str):
+  pinyin_tokens = pu.segment_with_hint(pinyin_str)
+  # since flat_predicted_list will be sorted by length in reverse order
+  # it is guaranteed that character with length 1 will be at the end
+  # therefore, simply append single characters that are not in the original
+  # predictions according to the first pinyin token
+  if (len(pinyin_tokens) > 1):
+    unigram_candidates = pu.get_pinyin_candidates(pinyin_tokens[0])
+    while unigram_candidates:
+      char = unigram_candidates.pop()
+      if (char not in flat_predicted_list):
+        flat_predicted_list.append(char)
+
+
 
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
@@ -252,17 +271,18 @@ if __name__ == "__main__":
      u"^ 你 带 钥 匙 | m e i y o u a",
      u"^ 我 妹 妹 | t a",
      u"^ 我 弟 弟 | t a",
-     u"^ 我 妈 妈 现 在 在 家 , | t a",
+     u"^ 我 妈 妈 现 在 在 家 ，| t a",
      u"^ 我 爸 爸 现 在 在 家 , | t a",
      u"^ 我 叫 | w e n q i n g d a"
   ]
-  for sample_in in samples:
-     pprint.pprint(sample_in)
-     print(query_once(sample_in))
-     print()
-  # query("^", "w")
-  # query("^", "wo")
-  # query("^我", "j")
+  #for sample_in in samples:
+     #pprint.pprint(sample_in)
+     #print(query_once(sample_in))
+     #print()
+  print(query("^ 下 班", ""))
+  # print(query("^", "w"))
+  # print(query("^", "wo"))
+  # print(query("^我", "j"))
   # query("^我", "ji")
   # query("^我", "jia")
   # query("^我", "jiao")

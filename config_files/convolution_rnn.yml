@@ -4,15 +4,15 @@ model_params:
   attention.params:
     num_units: 512
   bridge.class: seq2seq.models.bridges.InitialStateBridge
-  embedding.dim: 512
+  embedding.dim: 256
   encoder.class: seq2seq.encoders.ConvEncoder
   encoder.params:
     attention_cnn.units: 512
     attention_cnn.kernel_size: 3
-    attention_cnn.layers: 5
-    embedding_dropout_keep_prob: 0.6
-    output_cnn.units: 256
-    output_cnn.kernel_size: 2
+    attention_cnn.layers: 3
+    embedding_dropout_keep_prob: 0.50
+    output_cnn.units: 512
+    output_cnn.kernel_size: 3
     output_cnn.layers: 3
     position_embeddings.enable: True
     position_embeddings.combiner_fn: "tensorflow.multiply"
@@ -23,13 +23,13 @@ model_params:
       cell_class: GRUCell
       cell_params:
         num_units: 512
-      dropout_input_keep_prob: 0.95
-      dropout_output_keep_prob: 1.0
+      dropout_input_keep_prob: 1.0
+      dropout_output_keep_prob: 0.5
       num_layers: 3
   optimizer.name: Adam
   optimizer.params:
     epsilon: 0.0000008
-  optimizer.learning_rate: 0.0001
+  optimizer.learning_rate: 0.00001
   source.max_seq_len: 41
   source.reverse: false
   target.max_seq_len: 7

@@ -127,7 +127,9 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
+
 MODEL_DIR = "/data/model/mixed_abbrs_05_26_wiki"
+
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
@@ -224,6 +226,9 @@ def sort_and_merge_predictions(predictions_list):
     return ranked #[x[0] for x in ranked]
 
 def query(context, pinyins):
+  if (len(context) < 10):
+    context = "^" * (10 - len(context)) + context
+  print(context)
   # TODO: do not hard code window size here
   context = " ".join(list(context)[-10:])
   pinyins = " ".join(list("".join(pinyins)))
@@ -245,7 +250,7 @@ if __name__ == "__main__":
   ]
   for sample_in in samples:
      pprint.pprint(sample_in)
-     print(query_once(sample_in))
+     #print(query_once(sample_in))
      print()
   # query("^", "w")
   # query("^", "wo")
@@ -262,4 +267,4 @@ if __name__ == "__main__":
   # query(u"^我叫", "wenqing")
   # query(u"^我叫", "wenqingd")
   #query(u"^我叫", "wenqingda")
-  #query(u"^下班", "houyiqichifan")
+  query(u"^下班", "houyiqichifan")

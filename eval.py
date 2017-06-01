@@ -7,9 +7,10 @@ import beam_search as bs
 import metric
 import argparse
 import inference_handler as s2s
+
 import ngram as ng
 
-unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
+#unigram_dict, bigram_dict, dictionary = ng.load_model("model/ngrams_model")
 
 def predict(config):
     pprint.pprint(config)
@@ -32,6 +33,7 @@ def predict(config):
         index += 1
         data = data.split('|')
         (context, pinyin) = data
+        context = "".join(context.split())
         pinyin = pu.segment_with_hint(metric.normalize_text(pinyin))
        
         prediction = model_func(context.strip(), pinyin)

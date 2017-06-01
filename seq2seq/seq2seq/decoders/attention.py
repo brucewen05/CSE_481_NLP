@@ -119,13 +119,13 @@ class AttentionLayer(GraphModule, Configurable):
     scores = scores * scores_mask + ((1.0 - scores_mask) * tf.float32.min)
 
     # ------ custom code --------
-    CONTEXT_SIZE = 10
+#    CONTEXT_SIZE = 10
 #    scores_c = tf.slice(scores, [0, 0], [-1, CONTEXT_SIZE])
 #    scores_p = tf.slice(scores, [0, CONTEXT_SIZE], [-1, -1])
 
 #    scores_c_n = tf.nn.softmax(scores_c)
 #    scores_p_n = tf.nn.softmax(scores_p)
-#    merge_ratio = tf.Variable(initial_value=0.5, dtype=tf.float32, name="merge_ratio")
+    #merge_ratio = tf.Variable(initial_value=0.5, dtype=tf.float32, name="merge_ratio")
 #    merge_ratio = 0.5
 #    scores_normalized = tf.concat([scores_c_n * merge_ratio, scores_p_n * (1 - merge_ratio)], 1)
 
