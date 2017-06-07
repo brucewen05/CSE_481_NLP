@@ -26,7 +26,7 @@ model_params:
   optimizer.name: Adam
   optimizer.params:
     epsilon: 0.0000008
-  optimizer.learning_rate: 0.000001
+  optimizer.learning_rate: 0.00001
   source.max_seq_len: 41
   source.reverse: false
   target.max_seq_len: 7

@@ -99,7 +99,7 @@ class DecodeOnce(InferenceTask):
                 bigram_score = (ev.bigram_dict[(char_prev, char_cur)]) / float(ev.unigram_dict[char_prev])
               except ZeroDivisionError or KeyError:
                 bigram_score = 0
-              self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k] + bigram_score * 3
+              self._beam_accum["scores"][0][length - 1][k] = self._beam_accum["scores"][0][length -1][k] + bigram_score * 5
 
           for length in range(1, seq_len):
             prediction_per_len = []
@@ -128,8 +128,7 @@ class DecodeOnce(InferenceTask):
 
 # TODO: pass via args
 
-MODEL_DIR = "/data/model/mixed_abbrs_05_26_wiki"
-
+MODEL_DIR = "/data/model/mixed_abbrs_05_28_wiki"
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
 
 # Load saved training options
