@@ -130,9 +130,11 @@ class DecodeOnce(InferenceTask):
 
 
 # TODO: pass via args
-MODEL_DIR = "/data/model/mixed_abbrs_05_07"
+MODEL_DIR = "/data/model/mixed_abbrs_05_31_wiki"
 
 checkpoint_path = tf.train.latest_checkpoint(MODEL_DIR)
+
+print("latest_checkpoint is ", checkpoint_path, "============================")
 
 # Load saved training options
 train_options = training_utils.TrainOptions.load(MODEL_DIR)
@@ -160,8 +162,8 @@ model(
   },
   labels=None,
   params={
-    "vocab_source": "/data/vocab/mixed_abbrs",
-    "vocab_target": "/data/vocab/mixed_abbrs"
+    "vocab_source": "/data/vocab/wiki",
+    "vocab_target": "/data/vocab/wiki"
   }
 )
 

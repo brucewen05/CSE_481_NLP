@@ -1,4 +1,3 @@
-import pinyin_util as pu
 import codecs
 
 
@@ -31,6 +30,9 @@ def load_count_map(map_file):
         result[key_value[0]] = int(key_value[1])
     return result
         
+# a hack to get around with cyclic importing, i.e. pinyin_util imports
+# frequency_counter and frequency_counter imports pinyin_util
+import pinyin_util as pu
 
 if __name__ == "__main__":
     generate_count_file("/data/weibo_count.txt")

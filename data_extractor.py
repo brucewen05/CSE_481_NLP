@@ -22,7 +22,7 @@ GENERATE_ABBREVIATION_TOKEN_PROBABILITY = 0.8
 
 
 # probability to use typo for a given pinyin token
-GENERATE_TYPO_TUPLE_PROBABILITY = 0.5
+GENERATE_TYPO_TUPLE_PROBABILITY = 0.1
 # probability to generate a typo for each letter
 GENERATE_TYPO_LETTER_PROBABILITY = 0.8
 
@@ -97,6 +97,7 @@ def extract_triples(paragraph_pairs,
         add_abbr=True,
         add_typo=True,
         pad_front=False):
+    print("context window", context_window)
     # print_and_log(len(paragraph_pairs))
     # triples[i] = (context, pinyins, chars)
     triples = []
@@ -108,6 +109,7 @@ def extract_triples(paragraph_pairs,
             continue
         if len(pp[0]) < min_paragraph_len:
             continue
+        #print(pp)
         segment_positions = pp[2]
         # only put cursor and input window on word boundaries
         for cursor in range(1, len(pp[0])):
@@ -137,7 +139,50 @@ def extract_triples(paragraph_pairs,
                         typo_pinyins = generate_typo_noise(pinyins, GENERATE_TYPO_LETTER_PROBABILITY)
                         if (typo_pinyins != pinyins):
                             triples.append((" ".join(context), " ".join(typo_pinyins), " ".join(chars)))
-    print_and_log(len(triples))
+    #print_and_log(len(triples))
+    random.shuffle(triples)
+    return triples
+
+def extract_no_pinyin_triples(paragraph_pairs,
+        context_window=10,
+        max_input_window=5,
+        first_n=None,
+        min_paragraph_len=6,
+        pad_front=False):
+    print("context window", context_window)
+    # print_and_log(len(paragraph_pairs))
+    # triples[i] = (context, pinyins, chars)
+    triples = []
+    all_valid_chars = pu.get_all_candidates_chars()
+
+    for pp in paragraph_pairs:
+        if len(pp[0]) != len(pp[1]):
+            # weird encoding error in the dataset, skip
+            continue
+        if len(pp[0]) < min_paragraph_len:
+            continue
+        segment_positions = pp[2]
+        # only put cursor and input window on word boundaries
+        for cursor in range(1, len(pp[0])):
+            if not cursor in segment_positions:
+                continue
+            for input_window_end in range(cursor + 1, min(cursor + max_input_window + 1, len(pp[0]))):
+                if len([i for i in range(cursor, input_window_end) if not pp[0][i] in all_valid_chars]) > 0:
+                    break
+                if not input_window_end in segment_positions:
+                    continue
+                context = pp[0][max(0, cursor - context_window):cursor]
+                if pad_front:
+                    context = ["^"] * (context_window - len(context)) + context
+                #print_and_log(pinyins)
+                chars = pp[0][cursor:input_window_end]
+
+                if (len(chars) > 0):
+                    triples.append((" ".join(context), "", " ".join(chars)))
+                    if first_n is not None and len(triples) == first_n:
+                        return triples
+
+    #print_and_log(len(triples))
     random.shuffle(triples)
     return triples
 
@@ -203,17 +248,23 @@ def generate_typo_noise(pinyins, prob):
     for pinyin_token in pinyins:
         typo = list(pinyin_token)
         for i in range(len(typo)):
-            transpose, possibility = pu.typo_transpose_letter[typo[i]]
-            transposeLetter = transpose[np.random.choice(len(possibility), p=possibility)]
-            if random.random() < prob:
-                typo[i] = random.choice(
-                    [transposeLetter,            # Transpose adjacent letter on keyboard
-                     transposeLetter + typo[i],  # insert letter before
-                     typo[i] + transposeLetter,  # insert letter after
-                     "",                         # remove letter
-                     typo[i+1] if i == 0 and i != len(typo) - 1    # 1st:switch with adjacent letter (left)
-                     else typo[i-1] if i == len(typo) - 1          # last:switch with adjacent letter (right)
-                     else random.choice([typo[i+1], typo[i-1]])])  # switch with left/right adjacent letter
+            try:
+                transpose, possibility = pu.typo_transpose_letter[typo[i]]
+                transposeLetter = transpose[np.random.choice(len(possibility), p=possibility)]
+                if random.random() < prob:
+                    typo[i] = random.choice(
+                        [transposeLetter,            # Transpose adjacent letter on keyboard
+                        transposeLetter + typo[i],  # insert letter before
+                        typo[i] + transposeLetter,  # insert letter after
+                        "",                         # remove letter
+                        typo[i+1] if i == 0 and i != len(typo) - 1    # 1st:switch with adjacent letter (left)
+                        else typo[i-1] if i == len(typo) - 1          # last:switch with adjacent letter (right)
+                        else random.choice([typo[i+1], typo[i-1]])])  # switch with left/right adjacent letter
+            except KeyError:
+                print("an KeyError occurred with pinyin:", pinyins)
+                # unknown pinyins so just return the old list and
+                # this typo won't be added
+                return pinyins
 
         results.append(''.join(typo))
     # print_and_log("orignal array:" + pinyins)
@@ -255,61 +306,166 @@ def gen_source_target_files(triples, filename):
                         with codecs.open("/data/test/" + filename + ".target", 'w', encoding='utf-8') as test_target:
 
                             for tup in triples[:train_size]:
-                                train_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                if (len(tup[0]) != 0 and len(tup[1]) != 0):
+                                    train_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                elif(len(tup[1]) != 0):
+                                    train_source.write(" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                else:
+                                    train_source.write(" ".join(list("".join(tup[0].split(" ")))) + "\n")
                                 train_target.write(tup[2] + "\n")
 
                             for tup in triples[train_size:train_size + dev_size]:
-                                dev_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                if(len(tup[0]) != 0 and len(tup[1]) != 0):
+                                    dev_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                elif(len(tup[1]) != 0):
+                                    dev_source.write(" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                else:
+                                    dev_source.write(" ".join(list("".join(tup[0].split(" ")))) + "\n")
                                 dev_target.write(tup[2] + "\n")
 
                             for tup in triples[train_size + dev_size:]:
-                                test_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                if(len(tup[0]) != 0 and len(tup[1]) != 0):
+                                    test_source.write(tup[0] + " | " + " ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                elif(len(tup[1]) != 0):
+                                    test_source.write(" ".join(list("".join(tup[1].split(" ")))) + "\n")
+                                else:
+                                    test_source.write(" ".join(list("".join(tup[0].split(" ")))) + "\n")
                                 test_target.write(tup[2] + "\n")
 
 if __name__ == "__main__":
     summary_file = open("/data/data_summary.txt", "w")
 
-    print_and_log("Generating vocab...")
+    add_abbr = True
+    add_typo = False
+    context_window = 20
+    max_input_window = 5
 
-    # gen_vocab("/data/weibo.txt", "/data/vocab/weibo")
-    # gen_vocab("/data/nus_sms_chinese.txt", "/data/vocab/sms")
-    # gen_vocab("/data/wiki.txt", "/data/vocab/wiki")
-
-    print_and_log("Extracting sms data...")
+    print("building parallel paragraphs for all 3 corpus...")
     pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
-
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False), "sms_clean")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False), "sms_abbrs")
-    # print_and_log("typos")
-    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
-
-    print_and_log("Extracting lcmc data...")
     pp_lcmc = build_parallel_paragraphs_lcmc()
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False), "lcmc_clean")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False), "lcmc_abbrs")
-    # print_and_log("typos")
-    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
-
-    print_and_log("Extracting weibo data...")
     pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False), "weibo_clean")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False), "weibo_abbrs")
-    # print_and_log("typos")
-    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
+    print("done")
+    # pp_sms = None
+    # pp_lcmc = None
+    # pp_weibo = None
 
-    print_and_log("Extracting wiki data...")
-    pp_wiki = build_parallel_paragraphs_from_txt('/data/wiki.txt')
-    print_and_log("clean")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean")
-    print_and_log("abbrs")
-    gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs")
-    # print_and_log("typos")
-    # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos")
+    parallel_paragraphs = [pp_sms, pp_lcmc, pp_weibo]
+    corpus_names = ["sms", "lcmc", "weibo"]
+    min_paragraph_lens = [4, 6, 4]
+
+    has_abbr = ("abbrs" if add_abbr else "noAbbrs")
+    has_typo = ("typo" if add_typo else "noTypo")
+    window_size = ("context_win_size" + str(context_window) + "_" if context_window != 0 else "no_context_")
+    pinyin_size = ("pinyin_win_size" + str(max_input_window) if max_input_window != 0 else "no_pinyin")
+    dir_prefix = window_size + pinyin_size
+
+    for i in range(0, len(parallel_paragraphs)):
+        print_and_log("Extracting " + corpus_names[i] + " data with context_window = " + str(context_window) + " and pinyin_window = " + str(max_input_window))
+        
+        if (max_input_window != 0):
+            print_and_log(has_abbr + " with " + has_typo)
+            dir_name = dir_prefix + "/" + corpus_names[i] + "_" + has_abbr + "_" + has_typo
+            print(dir_name)
+            gen_source_target_files(extract_triples(parallel_paragraphs[i], min_paragraph_len=min_paragraph_lens[i], add_abbr=add_abbr, add_typo=add_typo, context_window=context_window), dir_name)
+        else:
+            print_and_log("no pinyin(so clean, no abbrs and no typos)")
+            dir_name = dir_prefix + "/" + corpus_names[i] + "_noAbbrs_noTypo"
+            print(dir_name)
+            gen_source_target_files(extract_no_pinyin_triples(parallel_paragraphs[i], min_paragraph_len=min_paragraph_lens[i], context_window=context_window), dir_name)
 
     summary_file.close()
+    # summary_file = open("/data/data_summary.txt", "w")
+
+    # #print_and_log("Generating vocab...")
+
+    # # gen_vocab("/data/weibo.txt", "/data/vocab/weibo")
+    # # gen_vocab("/data/nus_sms_chinese.txt", "/data/vocab/sms")
+    # # gen_vocab("/data/wiki.txt", "/data/vocab/wiki")
+
+    # print_and_log("Extracting sms data with context_window=20...")
+    # pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
+
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False, context_window=20), "large_context_both/sms_clean")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False, context_window=20), "large_context_both/sms_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
+
+    # print_and_log("Extracting lcmc data with context_window=20...")
+    # pp_lcmc = build_parallel_paragraphs_lcmc()
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False, context_window=20), "large_context_both/lcmc_clean")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False, context_window=20), "large_context_both/lcmc_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
+
+    # print_and_log("Extracting weibo data with context_window=20...")
+    # pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
+    # print_and_log("clean")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False, context_window=20), "large_context_both/weibo_clean")
+    # print_and_log("abbrs")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False, context_window=20), "large_context_both/weibo_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
+
+    # # print_and_log("Extracting wiki data...")
+    # # pp_wiki = build_parallel_paragraphs_from_txt('/data/wiki.txt')
+    # # print_and_log("clean")
+    # # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=False), "wiki_clean")
+    # # print_and_log("abbrs")
+    # # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=True, add_typo=False), "wiki_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_wiki, min_paragraph_len=4, add_abbr=False, add_typo=True), "wiki_typos")
+
+    # summary_file.close()
+    # summary_file = open("/data/data_summary.txt", "w")
+    
+    # print_and_log("Extracting sms no context data...")
+    # pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
+    # print_and_log("no context clean")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=False, context_window=0), "no_context/sms_clean")
+    # print_and_log("no context abbrs")
+    # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=True, add_typo=False, context_window=0), "no_context/sms_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_sms, min_paragraph_len=4, add_abbr=False, add_typo=True), "sms_typos")
+
+    # print_and_log("Extracting lcmc no context data...")
+    # pp_lcmc = build_parallel_paragraphs_lcmc()
+    # print_and_log("no context clean")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=False, context_window=0), "no_context/lcmc_clean")
+    # print_and_log("no context abbrs")
+    # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=True, add_typo=False, context_window=0), "no_context/lcmc_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_lcmc, min_paragraph_len=6, add_abbr=False, add_typo=True), "lcmc_typos")
+    
+    # print_and_log("Extracting weibo no context data...")
+    # pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
+    # print_and_log("no context clean")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=False, context_window=0), "no_context/weibo_clean")
+    # print_and_log("no context abbrs")
+    # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=True, add_typo=False, context_window=0), "no_context/weibo_abbrs")
+    # # print_and_log("typos")
+    # # gen_source_target_files(extract_triples(pp_weibo, min_paragraph_len=4, add_abbr=False, add_typo=True), "weibo_typos")
+    # summary_file.close()
+
+
+
+    # summary_file = open("/data/data_summary.txt", "w")
+    
+    # print_and_log("Extracting sms no pinyin data...")
+    # pp_sms = build_parallel_paragraphs_from_txt('/data/nus_sms_chinese.txt')
+    # print_and_log("no pinyin")
+    # gen_source_target_files(extract_no_pinyin_triples(pp_sms, min_paragraph_len=4), "no_pinyin/sms_clean")
+    
+    # print_and_log("Extracting lcmc no pinyin data...")
+    # pp_lcmc = build_parallel_paragraphs_lcmc()
+    # print_and_log("no pinyin")
+    # gen_source_target_files(extract_no_pinyin_triples(pp_lcmc, min_paragraph_len=6), "no_pinyin/lcmc_clean")
+    
+    # print_and_log("Extracting weibo no pinyin data...")
+    # pp_weibo = build_parallel_paragraphs_from_txt('/data/weibo.txt')
+    # print_and_log("no pinyin")
+    # gen_source_target_files(extract_no_pinyin_triples(pp_weibo, min_paragraph_len=4), "no_pinyin/weibo_clean")
+    # summary_file.close()      

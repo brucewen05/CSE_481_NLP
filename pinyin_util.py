@@ -10,6 +10,8 @@ valid_pinyins = set([line.strip() for line in lines])
 valid_prefixes = ["b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j",
         "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"]
 invalid_single_char = ["i", "u", "v"]
+
+
 chars_counts = fc.load_count_map("/data/weibo_count.txt")
 
 # for typos: gnerate a typo lookup table:
@@ -214,7 +216,9 @@ def get_pinyin_candidates(pinyin_or_prefix, allow_prefix=True):
         result = full_pinyin_candidates[pinyin_or_prefix]
 
     if (result):
-        result = list(filter(lambda c: c in chars_counts, result))
+        for char in result:
+            if (char not in chars_counts):
+                chars_counts[char] = 1
         result = sorted(result, key=lambda c: chars_counts[c], reverse=True)
     return result
 

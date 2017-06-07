@@ -27,7 +27,7 @@ def predict(config):
     ground_truth = []
     index = 0
     for truth, data in zip(target, source):
-        if index % 50 == 0:
+        if index % 1000 == 0:
             print(index)
             pprint.pprint(metric.evaluate(ground_truth, predictions, config.k))
         index += 1
@@ -38,6 +38,7 @@ def predict(config):
        
         prediction = model_func(context.strip(), pinyin)
         #print(prediction)
+        #print(truth)
         predictions.append(prediction)
         ground_truth.append(truth)
     pprint.pprint(metric.evaluate(target, predictions, config.k))

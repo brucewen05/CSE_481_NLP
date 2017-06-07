@@ -1,15 +1,14 @@
 # !/bin/bash
-if [ $# != 3 ]
+if [ $# != 4 ]
 then
-    echo "${0} corpus_name config_yaml train_steps"
+    echo "${0} corpus_name config_yaml train_steps sub_dir_name"
     exit 1
 fi
-
 
 # source the setup.sh using the passed-in arguments to this script
 source setup.sh
 
-model_dir="/data/model/${1}_`date +%m_%d_cnn`"
+model_dir="/data/model/${1}_`date +%m_%d`"
 
 if [ -d ${model_dir} ]
 then
