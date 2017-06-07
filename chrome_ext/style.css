@@ -1,6 +1,7 @@
 /* Use material design colors */
 
 #ime_box {
+	/*transform: scale(1.5);*/
 	border: 1px solid #bdbdbd;
 	background: #fff;
 	box-shadow: 2px 3px #f5f5f5;

@@ -1,19 +1,20 @@
 var CHOICES_PER_PAGE = 5;
 var MAX_CONTEXT_WINDOW = 10;
-var SERVER_ADDR = "http://13.85.28.147:7000";
+var SERVER_ADDR = "http://13.85.8.128:7000";
 
 $(document).ready(function() {
 
-    var choices = []
-    var numPinyinsUsed = []
-    var curPageStart = 0
-    var preselectionStack = [["", ""]]  // [[chars, additional pinyins used]]
-    var curPinyinInput = ""
+    var choices = [];
+    var numPinyinsUsed = [];
+    var curPageStart = 0;
+    var preselectionStack = [["", ""]];  // [[chars, additional pinyins used]]
+    var curPinyinInput = "";
+    var loading = false;
     // invariant: imeInput.text() == preselectionStack.top[0] + curPinyinInput
 
     // unfocus
-    $('textarea').blur()
-    $('input').blur()
+    $('textarea').blur();
+    $('input').blur();
     // IME floating widget
     imeBox = $("<div id='ime_box'></div>");
     // For simplicity, only edit at the right end
@@ -77,7 +78,8 @@ $(document).ready(function() {
     }
 
     function choose(inputElement, index) {
-        var num = curPageStart + index - 1
+        if (loading) return;
+        var num = curPageStart + index - 1;
         var preselected = preselectionStack[preselectionStack.length - 1]
         if (numPinyinsUsed[num] == curPinyinInput.length) {
             output(inputElement, preselected[0] + choices[num])
@@ -124,8 +126,11 @@ $(document).ready(function() {
     }
 
     function reloadPredictions(context, pinyin) {
+        loading = true;
         var oldInput = imeInput.text();
         console.log("query " + context + "|" + pinyin);
+        $(".ime_choice").css("opacity", 0.5);
+
         $.ajax({
             type: "GET",
             url: SERVER_ADDR + "/predict/",
@@ -145,6 +150,8 @@ $(document).ready(function() {
                 });
                 curPageStart = 0;
                 setChoiceElemsInPage();
+                loading = false;
+                $(".ime_choice").css("opacity", 1);
             }
         });
         // choices = ["自然", "孜然", "自燃", "字", "子"];
