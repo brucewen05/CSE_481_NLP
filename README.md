@@ -1,6 +1,13 @@
 # Input Method Engine Using Neural Networks
-This is our NLP capstone repo. Here is the detailed plan for our project:
-http://very-natural.blogspot.com/2017/04/3-formal-proposal.html
+
+Input Method Engine (IME) is a program that facilitates the input of non-english languages into digital devices. This work improves upon traditional n-gram based Chinese Pinyin IMEs by incorporating previous context and using a Seq2Seq neural network model with end-to-end training. Our model simplifies the NLP pipeline, while maintaining some tolerance for Pinyin abbreviations and typos.
+Our evaluation shows that it significantly outperforms the baseline bigram model in terms of prediction accuracies. We also
+built a Chrome extension frontend to help users type Chinese in any web pages.
+
+
+See our full [project report](https://github.com/brucewen05/CSE_481_NLP/blob/master/poster_and_report/final_report.pdf) for more details.
+
+
 
 ## Dev Notes
 ### Dependencies
